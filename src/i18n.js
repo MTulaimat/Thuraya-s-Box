@@ -8,7 +8,13 @@ const resources = {
 		translation: {
 			'Welcome to React': 'Welcome to React and react-i18next'
 		}
+	},
+	ar: {
+		translation: {
+			'Welcome to React': 'اهلا عبييييب'
+		}
 	}
+	
 };
 
 i18n.use(initReactI18next) // passes i18n down to react-i18next
