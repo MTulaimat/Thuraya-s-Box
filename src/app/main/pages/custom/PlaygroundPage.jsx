@@ -107,8 +107,8 @@ function PlaygroundPage() {
 
 	return (
 		<div className={classes.root}>
-			<div className={classes.test}>HAALLOOOO</div>
-			<h2>Loading {progression * 100}%</h2>
+			{/* <div className={classes.test}>HAALLOOOO</div> */}
+			{/* <h2>Loading {progression * 100}%</h2> */}
 			<Typography className={classes.title}>Playground!</Typography>
 			<div ref={ref} className={classes.unityContainer}>
 				<Unity
