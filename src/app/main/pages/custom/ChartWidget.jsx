@@ -76,7 +76,8 @@ function ChartWidget(props) {
 					</div>
 				</div>
 			</div>
-			<div className="h-96 w-100-p">
+			<div className="h-full w-100-p">
+				{/* was h-96 */}
 				<ReactApexChart
 					options={data.options}
 					series={data.series}
