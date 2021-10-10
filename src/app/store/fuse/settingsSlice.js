@@ -53,6 +53,7 @@ const getToolbarThemeId = state => state.fuse.settings.current.theme.toolbar;
 const getFooterThemeId = state => state.fuse.settings.current.theme.footer;
 
 function generateMuiTheme(themes, id, direction) {
+	id = 'light2'; // ID: 3	Force light2 to always be selected!!
 	const data = _.merge({}, defaultThemeOptions, themes[id], mustHaveThemeOptions);
 	const response = createMuiTheme(
 		_.merge({}, data, {
