@@ -7,7 +7,7 @@ const GuestRoleExampleConfig = {
 			config: {}
 		}
 	},
-	auth: authRoles.onlyGuest, // ['guest']
+	auth: authRoles.guestOnly, // ['guest']
 	routes: [
 		{
 			path: '/auth/guest-role-example',

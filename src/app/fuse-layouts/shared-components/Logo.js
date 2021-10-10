@@ -39,6 +39,7 @@ function Logo() {
 					className="logo-icon w-36 h-36"
 					src="assets/images/logos/Thurayas box - Logo only.svg"
 					alt="logo"
+					style={{ backgroundColor: 'white', borderRadius: '8px' }}
 				/>
 			</Link>
 		</div>

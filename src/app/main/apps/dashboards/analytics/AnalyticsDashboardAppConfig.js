@@ -7,7 +7,7 @@ const AnalyticsDashboardAppConfig = {
 			config: {}
 		}
 	},
-	auth: authRoles.student, //TODOXD enable this when publishing
+	auth: authRoles.studentOrHigher, //TODOXD enable this when publishing
 	routes: [
 		{
 			path: '/apps/dashboards/analytics',

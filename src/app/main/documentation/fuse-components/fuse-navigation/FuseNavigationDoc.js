@@ -226,7 +226,7 @@ function FuseNavigationDoc(props) {
 											title: 'Login',
 											type: 'item',
 											url: '/login',
-											auth: authRoles.onlyGuest,
+											auth: authRoles.guestOnly,
 											icon: 'lock'
 										},
 										{
@@ -234,7 +234,7 @@ function FuseNavigationDoc(props) {
 											title: 'Register',
 											type: 'item',
 											url: '/register',
-											auth: authRoles.onlyGuest,
+											auth: authRoles.guestOnly,
 											icon: 'person_add'
 										}
 									]

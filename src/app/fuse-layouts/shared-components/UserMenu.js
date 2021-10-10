@@ -25,7 +25,7 @@ function UserMenu(props) {
 		setUserMenu(null);
 	};
 
-	console.log('USERRRR123', user);
+	console.log('Logged in User\'s Object', user);
 
 	return (
 		<>

@@ -33,7 +33,7 @@ const routes = [
 	{
 		path: '/',
 		exact: true,
-		component: () => <Redirect to="/apps/dashboards/analytics" />
+		component: () => <Redirect to="/pages/custom/PlaygroundPage" /> // ID 1: Changed this so that the homepage is the playground page.
 	},
 	{
 		component: () => <Redirect to="/pages/errors/error-404" />

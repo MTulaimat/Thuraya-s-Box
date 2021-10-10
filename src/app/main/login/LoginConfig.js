@@ -23,7 +23,7 @@ const LoginConfig = {
 			}
 		}
 	},
-	auth: authRoles.onlyGuest,
+	auth: authRoles.guestOnly,
 	routes: [
 		{
 			path: '/login',

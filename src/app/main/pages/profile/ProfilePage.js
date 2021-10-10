@@ -3,7 +3,7 @@ import ChartWidget from '../custom/ChartWidget';
 
 const useStyles = makeStyles(theme => ({
 	root: {
-		width: '100vw',	
+		width: '100vw',
 		display: 'flex',
 		flexDirection: 'column',
 		justifyContent: 'center',
@@ -39,7 +39,7 @@ const useStyles = makeStyles(theme => ({
 		borderRadius: 15,
 	},
 	widget: {
-		
+
 	},
 	title: {
 		marginTop: 20,
@@ -58,6 +58,9 @@ function ProfilePage() {
 
 	return (
 		<div className={classes.root}>
+			<div>
+				<img alt="student profile photo" width="80" height="80" src="assets/images/custom/student.svg"/>
+			</div>
 			<p className={classes.title} >Analytics</p>
 			<div className={classes.widgetContainer}>
 				<ChartWidget

@@ -7,7 +7,7 @@ const PlaygroundPage = {
 			config: {}
 		}
 	},
-	auth: authRoles.student, //TODOXD enable this when done with students page dev
+	auth: authRoles.studentOrHigher, //TODOXD enable this when done with students page dev
 	routes: [
 		{
 			path: '/pages/custom/PlaygroundPage',

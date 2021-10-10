@@ -21,14 +21,15 @@ const navigationConfig = [
 				id: 'profile',
 				title: 'Profile',
 				type: 'item',
+				auth: authRoles.studentOrHigher,
 				icon: 'person',
-				url: '/pages/profile'
+				url: '/pages/profile',
 			},
 			{
 				id: 'playground',
 				title: 'Playground',
 				type: 'item',
-				auth: authRoles.student,
+				auth: authRoles.studentOrHigher,
 				icon: 'computer',
 				url: '/pages/custom/PlaygroundPage'
 			},
@@ -36,7 +37,7 @@ const navigationConfig = [
 				id: 'students',
 				title: 'Students',
 				type: 'item',
-				auth: authRoles.teacher,
+				auth: authRoles.teacherOrHigher,
 				icon: 'people',
 				url: '/pages/custom/StudentsPage'
 			}
@@ -56,7 +57,7 @@ const navigationConfig = [
 				id: 'logout',
 				title: 'Log out',
 				type: 'item',
-				auth: authRoles.student,
+				auth: authRoles.studentOrHigher,
 				url: '/logout',
 				icon: 'exit_to_app'
 			},
@@ -263,7 +264,7 @@ const navigationConfig = [
 						title: 'Login',
 						type: 'item',
 						url: '/login',
-						auth: authRoles.onlyGuest,
+						auth: authRoles.guestOnly,
 						icon: 'lock'
 					},
 					{
@@ -271,14 +272,14 @@ const navigationConfig = [
 						title: 'Register',
 						type: 'item',
 						url: '/register',
-						auth: authRoles.onlyGuest,
+						auth: authRoles.guestOnly,
 						icon: 'person_add'
 					},
 					{
 						id: 'logout',
 						title: 'Logout',
 						type: 'item',
-						auth: authRoles.student,
+						auth: authRoles.studentOrHigher,
 						url: '/logout',
 						icon: 'exit_to_app'
 					},
@@ -293,7 +294,7 @@ const navigationConfig = [
 						id: 'only-admin-navigation-item',
 						title: 'Nav item only for Admin',
 						type: 'item',
-						auth: authRoles.admin,
+						auth: authRoles.adminOnly,
 						url: '/auth/admin-role-example',
 						icon: 'verified_user'
 					},
@@ -308,7 +309,7 @@ const navigationConfig = [
 						id: 'only-staff-navigation-item',
 						title: 'Nav item only for Staff',
 						type: 'item',
-						auth: authRoles.teacher,
+						auth: authRoles.teacherOrHigher,
 						url: '/auth/staff-role-example',
 						icon: 'verified_user'
 					},
@@ -323,7 +324,7 @@ const navigationConfig = [
 						id: 'only-guest-navigation-item',
 						title: 'Nav item only for Guest',
 						type: 'item',
-						auth: authRoles.onlyGuest,
+						auth: authRoles.guestOnly,
 						url: '/auth/guest-role-example',
 						icon: 'verified_user'
 					}

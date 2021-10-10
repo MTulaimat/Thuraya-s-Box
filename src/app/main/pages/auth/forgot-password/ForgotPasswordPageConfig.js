@@ -23,7 +23,7 @@ const ForgotPasswordPageConfig = {
 			}
 		}
 	},
-	auth: authRoles.onlyGuest,
+	auth: authRoles.guestOnly,
 	routes: [
 		{
 			path: '/forgot-password',

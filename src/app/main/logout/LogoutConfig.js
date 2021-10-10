@@ -3,7 +3,7 @@ import store from 'app/store';
 import { logoutUser } from 'app/auth/store/userSlice';
 
 const LogoutConfig = {
-	auth: authRoles.student,
+	auth: authRoles.studentOrHigher,
 	routes: [
 		{
 			path: '/logout',

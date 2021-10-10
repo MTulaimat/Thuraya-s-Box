@@ -43,9 +43,7 @@ class Auth extends Component {
 					firebaseService.getUserData(authUser.uid).then(
 						user => {
 							this.props.setUserDataFirebase(user, authUser);
-
 							resolve();
-
 							this.props.showMessage({ message: 'Logged in with Firebase' });
 						},
 						error => {
