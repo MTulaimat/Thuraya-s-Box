@@ -2,6 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import ChartWidget from '../custom/ChartWidget';
 import { useDispatch, useSelector } from 'react-redux';
 import { IconButton, Icon } from "@material-ui/core";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -57,15 +58,36 @@ const useStyles = makeStyles(theme => ({
 	smallerTitle: {
 		fontSize: 20,
 	},
+	smallerInfo: {
+		fontSize: 18,
+		width: "100%",
+		textAlign: "left",
+		padding: "30px 60px",
+		// backgroundColor: "#f8d683",
+		// backgroundColor: "#F6F7F9",
+		// borderRadius: "10px",
+	},
+	smallerInfoRow: {
+		display: "flex",
+		justifyContent: "space-between",
+		width: "100%"
+	},
 	lesson: {
 		fontSize: 16,
 		height: 45,
 		width: '75%',
 		borderRadius: '10px',
+		alignItems: 'center',
+		backgroundColor: '#EACD82',
+		marginTop: "10px",
 		display: 'flex',
 		alignItems: 'center',
-		backgroundColor: '#D3D3D3',
+	},
+	lessonInner: {
+		display: 'flex',
+		alignItems: 'center',
 		justifyContent: 'space-between',
+		fontWeight: "500",
 	}
 }));
 
@@ -82,52 +104,68 @@ function ProfilePage() {
 
 	const lessonsArr = [
 		{
-			lessonName: 'Lesson xd123',
+			lessonName: 'Arabic',
 			exerciseName: 'Exercise 1'
 		},
 		{
-			lessonName: 'Lesson xd123',
-			exerciseName: 'Exercise 1'
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 2'
 		},
 		{
-			lessonName: 'Lesson xd533',
-			exerciseName: 'Exercise 1'
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 3'
 		},
 		{
-			lessonName: 'Lesson xd151',
-			exerciseName: 'Exercise 1'
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 4'
 		},
 		{
-			lessonName: 'Lesson xd321',
-			exerciseName: 'Exercise 1'
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 5'
 		},
 
 	];
 
 	return (
 		<div className={classes.root}>
-			<div>
-				{/* TODOXD have to make this switch based on gender of student*/}
-				<img alt="student profile photo" width="80" height="80" src="assets/images/custom/student.svg" />
+			<div class="bg-gray-200 dark:bg-gray-800 flex flex-wrap items-center justify-center" style={{ width: "600px" }}>
+				<div class="container lg:w-2/6 xl:w-2/7 sm:w-full md:w-2/3 bg-white shadow-lg transformduration-200 easy-in-out">
+					<div class="overflow-hidden" style={{ height: "24rem" }}>
+						<img class="w-full" src="assets\images\custom\classroom-graphic.jpg" alt="" />
+					</div>
+					<div class="flex justify-center px-5 -mt-12">
+						<img class="bg-white p-2 rounded-full" src="assets/images/custom/student.svg" alt="Student Image" style={{
+							width: "120px", boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px", //border: "solid 3px"
+						}} />
+
+					</div>
+					<div>
+						<div class="text-center px-14">
+							<h2 class="text-3xl font-bold pt-14">{user.data.displayName}</h2>
+							<p class="text-gray-400 mt-2">{user.data.email}</p>
+							{/* <p class="mt-2 text-gray-600">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, </p> */}
+							<div className={classes.smallerInfo}>
+								<div className={classes.smallerInfoRow}><div className="font-semibold">Teacher's Name:</div><div>Yazan Basel{user.data.teacherName}</div></div>
+								<div className={classes.smallerInfoRow}><div className="font-semibold">Last Online:</div><div>2021-10-13{user.data.lastOnline}</div></div>
+								<div className={classes.smallerInfoRow}><div className="font-semibold">Date Joined:</div><div>2021-10-05{user.data.dateJoined}</div></div>
+							</div>
+						</div>
+						<hr class="mt-6" />
+						<div class="flex bg-gray-50 text-base">
+							<div class="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
+								<p><span class="font-semibold">Ranking: </span>10</p>
+							</div>
+							<div class="border"></div>
+							<div class="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
+								<p><span class="font-semibold">Exercises: </span> 10/12</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
+			{/* <div style={{ display: 'flex', marginTop: 20, width: '50%', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'column', textAlign: 'start' }}></div> */}
 			<br />
-
-			<p className={classes.smallerTitle}><b>{user.data.email}</b></p>
-			<div style={{ display: 'flex', marginTop: 20, width: '50%', alignItems: 'center', justifyContent: 'space-around' }}>
-				<div style={{ width: '35%' }}>
-					<p className={classes.smallerTitle}>Name: <b>{user.data.displayName}</b></p>
-					<p className={classes.smallerTitle}>Teacher's Name: <b>MISSING!{user.data.teacherName}</b></p>
-					{/* <p className={classes.smallerTitle}>Teacher: <b>{user.data.teacherEmail}</b></p> */}
-				</div>
-				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-					<div style={{ borderRadius: '10px', border: '1px solid #0CA789', color: '#0CA789', padding: 15, }}>Rank</div>
-				</div>
-				<div style={{ width: '35%' }}>
-					<p className={classes.smallerTitle}>Last Online: <b>MISSING!{user.data.lastOnline}</b></p>
-					<p className={classes.smallerTitle}>Date Joined: <b>MISSING!{user.data.dateJoined}</b></p>
-				</div>
-			</div>
-
+			<br />
 			<p className={classes.title}>Analytics</p>
 			<div className={classes.widgetContainer}>
 				<div className={classes.widget}>
@@ -156,15 +194,15 @@ function ProfilePage() {
 				</div>
 			</div>
 
-			<h2 style={{ textAlign: 'center' }}>Exercise Data</h2>
+			<h2 style={{ textAlign: 'center', paddingTop: "40px" }}>Exercise Data</h2>
 			<br />
 
-			<div className={classes.lesson}>
-				<span>
-					<span style={{ display: 'inline-block', marginLeft: '20px', marginRight: '50px' }}>Lesson Title</span>
-					<span style={{ display: 'inline-block' }} >Exercise Title</span>
-				</span>
-				<span style={{ display: 'inline-block', marginRight: '20px' }}>
+			{lessonsArr.map(item => <div className={classes.lesson}><Link style={{ color: "inherit" }} to="/"><div className={classes.lessonInner}>
+				<div>
+					<span style={{ display: 'inline-block', marginLeft: '20px', marginRight: '50px' }}>{item.lessonName}</span>
+					<span style={{ display: 'inline-block' }} >{item.exerciseName}</span>
+				</div>
+				<div style={{ display: 'inline-block', marginRight: '20px' }}>
 					<IconButton
 						// disableRipple
 						className="w-16 h-16 ltr:ml-4 rtl:mr-4 p-0"
@@ -175,9 +213,11 @@ function ProfilePage() {
 							keyboard_arrow_right
 						</Icon>
 					</IconButton>
-				</span>
-			</div>
-		</div>
+				</div>
+			</div></Link></div>)
+
+			}
+		</div >
 	);
 }
 
