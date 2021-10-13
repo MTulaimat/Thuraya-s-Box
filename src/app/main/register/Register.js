@@ -13,21 +13,43 @@ import Auth0RegisterTab from './tabs/Auth0RegisterTab';
 import FirebaseRegisterTab from './tabs/FirebaseRegisterTab';
 import JWTRegisterTab from './tabs/JWTRegisterTab';
 
+// const useStyles = makeStyles(theme => ({
+// 	root: {
+// 		background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
+// 			theme.palette.primary.dark,
+// 			0.5
+// 		)} 100%)`,
+// 		color: theme.palette.primary.contrastText
+// 	},
+// 	leftSection: {},
+// 	rightSection: {
+// 		background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
+// 			theme.palette.primary.dark,
+// 			0.5
+// 		)} 100%)`,
+// 		color: theme.palette.primary.contrastText
+// 	}
+// }));
+
 const useStyles = makeStyles(theme => ({
 	root: {
-		background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
-			theme.palette.primary.dark,
+		// background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
+		// 	theme.palette.primary.dark,
+		// 	0.5
+		// )} 100%)`,
+		background: `linear-gradient(to right, #1b2330 0%, ${darken(
+			"#1b2330",
 			0.5
 		)} 100%)`,
-		color: theme.palette.primary.contrastText
+		color: "#ffffff"
 	},
 	leftSection: {},
 	rightSection: {
-		background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
-			theme.palette.primary.dark,
+		background: `linear-gradient(to right, #1b2330 0%, ${darken(
+			"#1b2330",
 			0.5
 		)} 100%)`,
-		color: theme.palette.primary.contrastText
+		color: "#ffffff"
 	}
 }));
 
@@ -80,9 +102,9 @@ function Register() {
 								Login
 							</Link>
 						</div>
-						<Link className="font-normal mt-8" to="/">
+						{/* <Link className="font-normal mt-8" to="/">
 							Back to Dashboard
-						</Link>
+						</Link> */}
 					</div>
 				</Card>
 

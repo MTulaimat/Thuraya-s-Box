@@ -159,8 +159,6 @@ function ProfilePage() {
 			<h2 style={{ textAlign: 'center' }}>Exercise Data</h2>
 			<br />
 
-
-
 			<div className={classes.lesson}>
 				<span>
 					<span style={{ display: 'inline-block', marginLeft: '20px', marginRight: '50px' }}>Lesson Title</span>

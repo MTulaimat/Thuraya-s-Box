@@ -8,27 +8,23 @@ import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
 import Auth0LoginTab from './tabs/Auth0LoginTab';
 import FirebaseLoginTab from './tabs/FirebaseLoginTab';
 import JWTLoginTab from './tabs/JWTLoginTab';
 
+var color = '#533D21';
+var colorRight = '#CAAF6B';
 
 const useStyles = makeStyles(theme => ({
 	root: {
-		background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
-			theme.palette.primary.dark,
-			0.5
-		)} 100%)`,
-		color: theme.palette.primary.contrastText
+		background: `linear-gradient(to right, #1b2330 0%, rgb(13, 17, 24) 100%)`,
+		color: '#ffffff'
 	},
 	leftSection: {},
 	rightSection: {
-		background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
-			theme.palette.primary.dark,
-			0.5
-		)} 100%)`,
-		color: theme.palette.primary.contrastText
+		background: `linear-gradient(to right, #1b2330 0%, rgb(13, 17, 24) 100%)`,
+		color: '#ffffff'
 	}
 }));
 
@@ -76,17 +72,17 @@ function Login() {
 					<div className="flex flex-col items-center justify-center pb-32">
 						<div>
 							<span className="font-normal mr-8">Don't have an account?</span>
-							<Link className="font-normal" to="/register">
+							<Link className="font-normal" to="/register" style={{ color: '#DBB657' }}>
 								Register
 							</Link>
 						</div>
 						{/* <Link className="font-normal mt-8" to="../../pages/auth/forgot-password/ForgotPasswordPage.js"> */}
-						<Link className="font-normal mt-8" to="/forgot-password">
+						<Link className="font-normal mt-8" to="/forgot-password" style={{ color: '#DBB657' }}>
 							Forgot password?
 						</Link>
-						<Link className="font-normal mt-8" to="/">
+						{/* <Link className="font-normal mt-8" to="/">
 							Back to Dashboard
-						</Link>
+						</Link> */}
 					</div>
 				</Card>
 

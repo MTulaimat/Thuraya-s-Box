@@ -242,13 +242,13 @@ function FirebaseRegisterTab(props) {
 						>
 							<FormControlLabel
 								value="student"
-								control={<Radio color="primary" />}
+								control={<Radio color="default" />}
 								label="Student"
 								labelPlacement="end"
 							/>
 							<FormControlLabel
 								value="teacher"
-								control={<Radio color="primary" />}
+								control={<Radio color="default" />}
 								label="Teacher"
 								labelPlacement="end"
 							/>

@@ -125,3 +125,14 @@ input:-webkit-autofill {
 .fc-scrollgrid-section-liquid {
     height: 1px !important;
 }
+
+/* Hiding useless elements */
+#fuse-toolbar > div > div.flex.flex-1.px-16 > div > div > div,
+#fuse-toolbar > div > div.flex.items-center.px-8.h-full.overflow-x-auto > button.MuiButtonBase-root-2249.MuiIconButton-root-2240.w-40.h-40,
+#fuse-settings-schemes {
+    display: none !important;
+}
+
+#fuse-layout > div > div > div > div > ul > ul > li {
+    opacity: 0%;
+}
