@@ -13,7 +13,7 @@ function FooterLayout1(props) {
 	const footerTheme = useSelector(selectFooterTheme);
 
 	return (
-		<ThemeProvider>
+		<ThemeProvider theme={footerTheme} children={""}>
 			{/* <AppBar
 				id="fuse-footer"
 				className={clsx('relative z-20 shadow-md', props.className)}
