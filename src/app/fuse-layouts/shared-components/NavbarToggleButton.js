@@ -39,7 +39,7 @@ function NavbarToggleButton(props) {
 }
 
 NavbarToggleButton.defaultProps = {
-	children: <Icon fontSize="inherit">menu_open</Icon>
+	children: <Icon fontSize="inherit">menu_close</Icon>
 };
 
 export default NavbarToggleButton;
