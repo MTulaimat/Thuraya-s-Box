@@ -1,8 +1,16 @@
 import { makeStyles } from '@material-ui/core/styles';
 import ChartWidget from '../custom/ChartWidget';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { IconButton, Icon } from "@material-ui/core";
 import { Link } from "react-router-dom";
+import Backdrop from '@material-ui/core/Backdrop';
+import Box from '@material-ui/core/Box';
+import Modal from '@material-ui/core/Modal';
+import Fade from '@material-ui/core/Fade';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import { useState } from "react";
+
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -51,7 +59,7 @@ const useStyles = makeStyles(theme => ({
 		// marginTop: 30,
 	},
 	title: {
-		marginTop: 20,
+		marginTop: 30,
 		fontSize: 35,
 		padding: 10,
 	},
@@ -82,18 +90,36 @@ const useStyles = makeStyles(theme => ({
 		marginTop: "10px",
 		display: 'flex',
 		alignItems: 'center',
+		cursor: 'pointer'
 	},
 	lessonInner: {
 		display: 'flex',
 		alignItems: 'center',
+		height: 45,
 		justifyContent: 'space-between',
 		fontWeight: "500",
+		width: "100%",
 	}
 }));
 
-
+const modalStyle = {
+	position: 'absolute',
+	top: '50%',
+	left: '50%',
+	transform: 'translate(-50%, -50%)',
+	width: 400,
+	bgcolor: 'background.paper',
+	border: '2px solid #000',
+	boxShadow: 24,
+	p: 4,
+};
 
 function ProfilePage() {
+	const [modalOpen, setModalOpen] = useState(false);
+	const [modalExerciseName, setModalExerciseName] = useState('false');
+	const handleOpen = () => setModalOpen(true);
+	const handleClose = () => setModalOpen(false);
+
 	const classes = useStyles();
 	const user = useSelector(({ auth }) => auth.user);
 
@@ -128,36 +154,35 @@ function ProfilePage() {
 
 	return (
 		<div className={classes.root}>
-			<div class="bg-gray-200 dark:bg-gray-800 flex flex-wrap items-center justify-center" style={{ width: "600px" }}>
-				<div class="container lg:w-2/6 xl:w-2/7 sm:w-full md:w-2/3 bg-white shadow-lg transformduration-200 easy-in-out">
-					<div class="overflow-hidden" style={{ height: "24rem" }}>
-						<img class="w-full" src="assets\images\custom\classroom-graphic.jpg" alt="" />
+			<div className="bg-gray-200 dark:bg-gray-800 flex flex-wrap items-center justify-center" style={{ width: "600px" }}>
+				<div className="container lg:w-2/6 xl:w-2/7 sm:w-full md:w-2/3 bg-white shadow-lg transformduration-200 easy-in-out">
+					<div className="overflow-hidden" style={{ height: "24rem" }}>
+						<img className="w-full" src="assets\images\custom\classroom-graphic.jpg" alt="" />
 					</div>
-					<div class="flex justify-center px-5 -mt-12">
-						<img class="bg-white p-2 rounded-full" src="assets/images/custom/student.svg" alt="Student Image" style={{
+					<div className="flex justify-center px-5 -mt-12">
+						<img className="bg-white p-2 rounded-full" src="assets/images/custom/student.svg" alt="Student Image" style={{
 							width: "120px", boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px", //border: "solid 3px"
 						}} />
 
 					</div>
 					<div>
-						<div class="text-center px-14">
-							<h2 class="text-3xl font-bold pt-14">{user.data.displayName}</h2>
-							<p class="text-gray-400 mt-2">{user.data.email}</p>
-							{/* <p class="mt-2 text-gray-600">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, </p> */}
+						<div className="text-center px-14">
+							<h2 className="text-3xl font-bold pt-14">{user.data.displayName}</h2>
+							<p className="text-gray-400 mt-2">{user.data.email}</p>
 							<div className={classes.smallerInfo}>
 								<div className={classes.smallerInfoRow}><div className="font-semibold">Teacher's Name:</div><div>Yazan Basel{user.data.teacherName}</div></div>
 								<div className={classes.smallerInfoRow}><div className="font-semibold">Last Online:</div><div>2021-10-13{user.data.lastOnline}</div></div>
 								<div className={classes.smallerInfoRow}><div className="font-semibold">Date Joined:</div><div>2021-10-05{user.data.dateJoined}</div></div>
 							</div>
 						</div>
-						<hr class="mt-6" />
-						<div class="flex bg-gray-50 text-base">
-							<div class="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
-								<p><span class="font-semibold">Ranking: </span>10</p>
+						<hr className="mt-6" />
+						<div className="flex bg-gray-50 text-base">
+							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
+								<p><span className="font-semibold">Ranking: </span>10</p>
 							</div>
-							<div class="border"></div>
-							<div class="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
-								<p><span class="font-semibold">Exercises: </span> 10/12</p>
+							<div className="border"></div>
+							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
+								<p><span className="font-semibold">Exercises: </span> 10/12</p>
 							</div>
 						</div>
 					</div>
@@ -194,10 +219,10 @@ function ProfilePage() {
 				</div>
 			</div>
 
-			<h2 style={{ textAlign: 'center', paddingTop: "40px" }}>Exercise Data</h2>
+			<p className={classes.title}>Exercise Data</p>
 			<br />
 
-			{lessonsArr.map(item => <div className={classes.lesson}><Link style={{ color: "inherit" }} to="/"><div className={classes.lessonInner}>
+			{lessonsArr.map(item => <div key={item.exerciseName} onClick={() => { setModalExerciseName(item.exerciseName); setModalOpen(!modalOpen); }} className={classes.lesson}><div className={classes.lessonInner}>
 				<div>
 					<span style={{ display: 'inline-block', marginLeft: '20px', marginRight: '50px' }}>{item.lessonName}</span>
 					<span style={{ display: 'inline-block' }} >{item.exerciseName}</span>
@@ -214,9 +239,37 @@ function ProfilePage() {
 						</Icon>
 					</IconButton>
 				</div>
-			</div></Link></div>)
+			</div></div>)}
 
-			}
+			{modalOpen ? <div>
+				<Modal
+					aria-labelledby="transition-modal-title"
+					aria-describedby="transition-modal-description"
+					open={modalOpen}
+					onClose={handleClose}
+					closeAfterTransition
+					BackdropComponent={Backdrop}
+					BackdropProps={{
+						timeout: 500,
+					}}
+				>
+					<Fade in={modalOpen}>
+						<Box sx={modalStyle}>
+							<Typography id="transition-modal-title" className="font-semibold" variant="h5" component="h2">
+								Arabic - {modalExerciseName} Details
+							</Typography>
+							<Typography id="transition-modal-description" sx={{ mt: 2 }}>
+								<div className={classes.smallerInfo} style={{padding: "10px"}}>
+									<div className={classes.smallerInfoRow}><div className="font-semibold">Score:</div><div>50 points</div></div>
+									<div className={classes.smallerInfoRow}><div className="font-semibold">Time to Finish:</div><div>40 seconds</div></div>
+									<div className={classes.smallerInfoRow}><div className="font-semibold">Attempts:</div><div>5 attempts</div></div>
+									<div className={classes.smallerInfoRow}><div className="font-semibold">Mistakes:</div><div>7 mistakes</div></div>
+								</div>
+							</Typography>
+						</Box>
+					</Fade>
+				</Modal>
+			</div> : <></>}
 		</div >
 	);
 }
