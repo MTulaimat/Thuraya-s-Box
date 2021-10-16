@@ -1,0 +1,241 @@
+import { makeStyles } from '@material-ui/core/styles';
+import ChartWidget from '../custom/ChartWidget';
+import { useSelector } from 'react-redux';
+import { IconButton, Icon } from '@material-ui/core';
+import { Link } from 'react-router-dom';
+import Backdrop from '@material-ui/core/Backdrop';
+import Box from '@material-ui/core/Box';
+import Modal from '@material-ui/core/Modal';
+import Fade from '@material-ui/core/Fade';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import { useState } from 'react';
+
+const useStyles = makeStyles(theme => ({
+	root: {
+		// width: '100vw',
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		padding: 30
+	},
+	avatar: {
+		border: `4px solid ${theme.palette.background.default}`
+	},
+	topBg: {
+		background: 'url("assets/images/profile/morain-lake.jpg")!important',
+		backgroundSize: 'cover!important',
+		backgroundPosition: 'center center!important'
+	},
+	layoutHeader: {
+		background: 'none',
+		height: 320,
+		minHeight: 320,
+		[theme.breakpoints.down('md')]: {
+			height: 240,
+			minHeight: 240
+		}
+	},
+	widgetContainer: {
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		// flexWrap: 'wrap',
+		// backgroundColor: 'lightCyan',
+		gap: '24px',
+		padding: '24px',
+		width: '70%',
+		borderRadius: 15
+	},
+	widget: {
+		height: 275,
+		width: '100%',
+		borderRadius: '10px'
+		// border: '1px solid #0CA789',
+		// width: '80%',
+		// marginTop: 30,
+	},
+	title: {
+		marginTop: 30,
+		fontSize: 35,
+		padding: 10
+	},
+	smallerTitle: {
+		fontSize: 20
+	},
+	smallerInfo: {
+		fontSize: 18,
+		width: '100%',
+		textAlign: 'left',
+		padding: '30px 60px'
+		// backgroundColor: "#f8d683",
+		// backgroundColor: "#F6F7F9",
+		// borderRadius: "10px",
+	},
+	smallerInfoRow: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		width: '100%'
+	},
+	lesson: {
+		fontSize: 16,
+		height: 45,
+		width: '75%',
+		borderRadius: '10px',
+		alignItems: 'center',
+		backgroundColor: '#EACD82',
+		marginTop: '10px',
+		display: 'flex',
+		alignItems: 'center',
+		cursor: 'pointer'
+	},
+	lessonInner: {
+		display: 'flex',
+		alignItems: 'center',
+		height: 45,
+		justifyContent: 'space-between',
+		fontWeight: '500',
+		width: '100%'
+	}
+}));
+
+const modalStyle = {
+	position: 'absolute',
+	top: '50%',
+	left: '50%',
+	transform: 'translate(-50%, -50%)',
+	width: 400,
+	bgcolor: 'background.paper',
+	// border: '2px solid #000',
+	borderRadius: '15px',
+	boxShadow: 24,
+	p: 4
+};
+
+function ProfilePage() {
+	const [modalOpen, setModalOpen] = useState(false);
+	const [modalExerciseName, setModalExerciseName] = useState('false');
+	const handleOpen = () => setModalOpen(true);
+	const handleClose = () => setModalOpen(false);
+
+	const classes = useStyles();
+
+	const studentsArr = [
+		{
+			studentName: 'Yazan Qawasmeh',
+			teacherName: 'Anas Nakawa',
+			exerciseName: '12/12',
+			avgScore: 96
+		},
+		{
+			studentName: 'Basel Tabakha',
+			teacherName: 'Anas Nakawa',
+			exerciseName: '11/12',
+			avgScore: 87
+		},
+		{
+			studentName: 'Saeed Sharabati',
+			teacherName: 'Anas Nakawa',
+			exerciseName: '10/12',
+			avgScore: 84
+		},
+		{
+			studentName: 'Saad Motamad',
+			teacherName: 'Anas Nakawa',
+			exerciseName: '9/12',
+			avgScore: 79
+		},
+		{
+			studentName: 'Ahmad Othman',
+			teacherName: 'Anas Nakawa',
+			exerciseName: '12/12',
+			avgScore: 71
+		}
+	];
+
+	return (
+		<div className={classes.root}>
+			<p className={classes.title}>Leaderboards</p>
+			<br />
+
+			<section className="py-1 bg-blueGray-50" style={{ width: '67%', fontSize: '16px' }}>
+				<div className="w-full xl:w-8/12 mb-12 xl:mb-0 px-6 mx-auto mt-24">
+					<div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
+						<div className="rounded-t mb-0 border-0">
+							<div className="flex flex-wrap items-center">
+								<div className="relative w-full py-4 px-14 max-w-full flex-grow flex-1">
+									<p className="font-semibold text-lg text-blueGray-700">Progress Report</p>
+								</div>
+								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
+									<button
+										className="text-white active:bg-indigo-600 font-medium px-6 py-3 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+										style={{ backgroundColor: '#F3B25F' }}
+										type="button"
+									>
+										{/* <Icon className="refresh-icon">refresh</Icon> */}
+										Refresh
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<div className="block w-full overflow-x-auto" style={{ paddingBottom: '15px' }}>
+							<table className="items-center bg-transparent w-full border-collapse">
+								<thead>
+									<tr>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Name
+										</th>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Teacher
+										</th>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Exercises Completed
+										</th>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Avg. Score
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{studentsArr.map((item, index) => (
+										<tr key={item.exerciseName}>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
+												{item.studentName}
+											</td>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
+												{item.teacherName}
+											</td>
+											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
+												{item.exerciseName}
+											</td>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
+												{item.avgScore} &nbsp;
+												{index == 0 ? '🥇' : ''}
+												{index == 1 ? '🥈' : ''}
+												{index == 2 ? '🥉' : ''}
+											</td>
+										</tr>
+									))}
+									{/* <IconButton
+											// disableRipple
+											className="w-16 h-16 ltr:ml-4 rtl:mr-4 p-0"
+											color="inherit">
+											<Icon className="text-16 arrow-icon">
+												{/* {theme.direction === 'ltr' ? 'keyboard_arrow_right' : 'keyboard_arrow_left'} 
+												keyboard_arrow_right
+											</Icon>
+										</IconButton> */}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	);
+}
+
+export default ProfilePage;

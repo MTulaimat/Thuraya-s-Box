@@ -24,6 +24,9 @@ import PricingStyle3PageConfig from './pricing/style-3/PricingStyle3PageConfig';
 import ProfilePageConfig from './profile/ProfilePageConfig';
 import ClassicSearchPageConfig from './search/classic/ClassicSearchPageConfig';
 import ModernSearchPageConfig from './search/modern/ModernSearchPageConfig';
+import AdminProfilePageConfig from "./admin-profile/AdminProfilePageConfig";
+import TeacherProfilePageConfig from "./teacher-profile/TeacherProfilePageConfig";
+import LeaderboardPageConfig from "./leaderboard/LeaderboardPageConfig";
 
 const pagesConfigs = [
 	LoginPageConfig,
@@ -48,10 +51,13 @@ const pagesConfigs = [
 	PricingStyle2PageConfig,
 	PricingStyle3PageConfig,
 	ProfilePageConfig,
+	AdminProfilePageConfig,
+	TeacherProfilePageConfig,
 	ClassicSearchPageConfig,
 	ModernSearchPageConfig,
 	FaqPageConfig,
 	KnowledgeBasePageConfig,
+	LeaderboardPageConfig,
 ];
 
 export default pagesConfigs;

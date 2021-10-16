@@ -18,10 +18,18 @@ const navigationConfig = [
 		icon: 'pages',
 		children: [
 			{
+				id: 'teacher',
+				title: 'Students',
+				type: 'item',
+				auth: authRoles.teacherOnly,
+				icon: 'people',
+				url: '/pages/teacher'
+			},
+			{
 				id: 'profile',
 				title: 'Profile',
 				type: 'item',
-				auth: authRoles.studentOrHigher,
+				auth: authRoles.studentOnly,
 				icon: 'person',
 				url: '/pages/profile',
 			},
@@ -34,13 +42,31 @@ const navigationConfig = [
 				url: '/pages/custom/PlaygroundPage'
 			},
 			{
-				id: 'students',
-				title: 'Students',
+				id: 'admin',
+				title: 'Admin',
 				type: 'item',
-				auth: authRoles.teacherOrHigher,
-				icon: 'people',
-				url: '/pages/custom/StudentsPage'
+				auth: authRoles.adminOnly,
+				icon: 'wrench',
+				url: '/pages/admin'
+			},
+			{
+				id: 'leaderboard',
+				title: 'Leaderboard',
+				type: 'item',
+				auth: authRoles.studentOrHigher,
+				icon: 'leaderboard',
+				url: '/pages/leaderboard'
 			}
+
+			// TODOXD Remove this if it's not needed, I created teacherprofile page instead
+			// {
+			// 	id: 'students',
+			// 	title: 'Students',
+			// 	type: 'item',
+			// 	auth: authRoles.teacherOrHigher,
+			// 	icon: 'people',
+			// 	url: '/pages/custom/StudentsPage'
+			// }
 		]
 	},
 	{
