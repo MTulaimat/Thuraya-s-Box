@@ -19,11 +19,19 @@ const navigationConfig = [
 		children: [
 			{
 				id: 'teacher',
-				title: 'Students',
+				title: 'Home',
 				type: 'item',
 				auth: authRoles.teacherOnly,
-				icon: 'people',
+				icon: 'home',
 				url: '/pages/teacher'
+			},
+			{
+				id: 'admin',
+				title: 'Home',
+				type: 'item',
+				auth: authRoles.adminOnly,
+				icon: 'home',
+				url: '/pages/admin'
 			},
 			{
 				id: 'profile',
@@ -31,7 +39,7 @@ const navigationConfig = [
 				type: 'item',
 				auth: authRoles.studentOnly,
 				icon: 'person',
-				url: '/pages/profile',
+				url: '/pages/student',
 			},
 			{
 				id: 'playground',
@@ -41,14 +49,7 @@ const navigationConfig = [
 				icon: 'computer',
 				url: '/pages/custom/PlaygroundPage'
 			},
-			{
-				id: 'admin',
-				title: 'Admin',
-				type: 'item',
-				auth: authRoles.adminOnly,
-				icon: 'wrench',
-				url: '/pages/admin'
-			},
+
 			{
 				id: 'leaderboard',
 				title: 'Leaderboard',

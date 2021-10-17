@@ -1,11 +1,17 @@
 import { makeStyles } from '@material-ui/core/styles';
 import ChartWidget from '../custom/ChartWidget';
 import { useSelector } from 'react-redux';
-import { Link, Redirect, useHistory, useLocation } from 'react-router-dom';
+import { IconButton, Icon } from '@material-ui/core';
+import { Link, useLocation } from 'react-router-dom';
+import Backdrop from '@material-ui/core/Backdrop';
+import Box from '@material-ui/core/Box';
+import Modal from '@material-ui/core/Modal';
+import Fade from '@material-ui/core/Fade';
 import Button from '@material-ui/core/Button';
-import { useState, useEffect } from 'react';
+import Typography from '@material-ui/core/Typography';
+import { useEffect, useState } from 'react';
+import './StudentPage.css';
 import { useUrlSearchParams } from 'use-url-search-params';
-import './TeacherPage.css';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -75,6 +81,12 @@ const useStyles = makeStyles(theme => ({
 		justifyContent: 'space-between',
 		width: '100%'
 	},
+	modalInfoRow: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		width: '100%',
+		paddingBottom: '10px'
+	},
 	lesson: {
 		fontSize: 16,
 		height: 45,
@@ -97,16 +109,30 @@ const useStyles = makeStyles(theme => ({
 	}
 }));
 
-function TeacherProfilePage() {
+const modalStyle = {
+	position: 'absolute',
+	top: '50%',
+	left: '50%',
+	transform: 'translate(-50%, -50%)',
+	width: 400,
+	bgcolor: 'background.paper',
+	// border: '2px solid #000',
+	borderRadius: '15px',
+	boxShadow: 24,
+	p: 4
+};
+
+function ProfilePage() {
 	const [modalOpen, setModalOpen] = useState(false);
 	const [modalExerciseName, setModalExerciseName] = useState('false');
 	const handleOpen = () => setModalOpen(true);
 	const handleClose = () => setModalOpen(false);
 	const [params, setParams] = useUrlSearchParams();
+	const location = useLocation();
+
 	const classes = useStyles();
 	const user = useSelector(({ auth }) => auth.user);
-	const history = useHistory();
-	const location = useLocation();
+
 	const categories = [
 		'Exercise 1',
 		'Exercise 2',
@@ -116,58 +142,46 @@ function TeacherProfilePage() {
 		'Exercise 6',
 		'Exercise 7'
 	];
-
 	const widgetData1 = [70, 80, 35, 95, 70, 80, 35];
-	const widgetData2 = [4, 5, 3, 8, 7, 9, 11];
+	const widgetData2 = [60, 30, 25, 85, 20, 40, 55];
 	const widgetData3 = [20, 120, 45, 35, 80, 30, 65];
+
+	const lessonsArr = [
+		{
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 1',
+			completed: '✅',
+			dateCompleted: '2021-10-13'
+		},
+		{
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 2',
+			completed: '✅',
+			dateCompleted: '2021-10-14'
+		},
+		{
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 3',
+			completed: '✅',
+			dateCompleted: '2021-10-16'
+		},
+		{
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 4',
+			completed: '❌',
+			dateCompleted: '-'
+		},
+		{
+			lessonName: 'Arabic',
+			exerciseName: 'Exercise 5',
+			completed: '❌',
+			dateCompleted: '-'
+		}
+	];
 
 	useEffect(() => {
 		window.scrollTo(0, 0);
 	}, [location]);
-
-	const studentsArr = [
-		{
-			key: 1,
-			studentName: 'Yazan Qawasmeh',
-			lessonName: 'Arabic',
-			exerciseName: '12',
-			avgScore: 96
-		},
-		{
-			key: 2,
-			studentName: 'Basel Tabakha',
-			lessonName: 'Arabic',
-			exerciseName: '11',
-			avgScore: 87
-		},
-		{
-			key: 3,
-			studentName: 'Saeed Sharabati',
-			lessonName: 'Arabic',
-			exerciseName: '10',
-			avgScore: 84
-		},
-		{
-			key: 4,
-			studentName: 'Saad Motamad',
-			lessonName: 'Arabic',
-			exerciseName: '9',
-			avgScore: 79
-		},
-		{
-			key: 5,
-			studentName: 'Ahmad Othman',
-			lessonName: 'Arabic',
-			exerciseName: '12',
-			avgScore: 71
-		}
-	];
-
-	let handleOnClick = name => {
-		// router.transitionTo();
-
-		history.push('/pages/student?n=' + name.replace(' ', '+'));
-	};
 
 	return (
 		<div className={classes.root}>
@@ -180,12 +194,12 @@ function TeacherProfilePage() {
 					style={{ borderRadius: '15px' }}
 				>
 					<div className="overflow-hidden" style={{ height: '24rem', borderRadius: '15px 15px 0px 0px' }}>
-						<img className="w-full" src="assets/images/custom/teacher_graphic.png" alt="" />
+						<img className="w-full" src="assets\images\custom\classroom-graphic.jpg" alt="" />
 					</div>
 					<div className="flex justify-center px-5 -mt-12">
 						<img
 							className="bg-white p-2 rounded-full"
-							src="assets/images/custom/teacher.svg"
+							src="assets/images/custom/student.svg"
 							alt="Student Image"
 							style={{
 								width: '120px',
@@ -196,14 +210,12 @@ function TeacherProfilePage() {
 					<div>
 						<div className="text-center px-14">
 							<h2 className="text-3xl font-bold pt-14">{params.n == null ? user.name : params.n}</h2>
-							<p className="text-gray-400 mt-2">
-								{/* {params.e == null ? user.data.email : params.e} */}
-								teacher@mail.com
-							</p>
+							{/* <p className="text-gray-400 mt-2">{user.data.email}</p> */}
+							<p className="text-gray-400 mt-2">student@mail.com</p>
 							<div className={classes.smallerInfo}>
 								<div className={classes.smallerInfoRow}>
-									<div className="font-semibold">Number of Students:</div>
-									<div>20{user.data.teacherName}</div>
+									<div className="font-semibold">Teacher's Name:</div>
+									<div>Fatima Ahmad{user.data.teacherName}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Online:</div>
@@ -217,25 +229,30 @@ function TeacherProfilePage() {
 						</div>
 						<hr className="mt-6" />
 						<div className="flex bg-gray-50 text-base" style={{ borderRadius: '15px' }}>
-							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
-								<p>{/* <span className="font-semibold">Ranking: </span>10 */}</p>
+							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer select-none">
+								<p>
+									<span className="font-semibold">Ranking: </span>10
+								</p>
 							</div>
-							{/* <div className="border"></div> */}
-							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
-								<p>{/* <span className="font-semibold">Completed: </span> 7 */}</p>
+							<div className="border"></div>
+							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer select-none">
+								<p>
+									<span className="font-semibold">Completed: </span> 6
+								</p>
 							</div>
 						</div>
 					</div>
 				</div>
+				<br />
+				<br />
 			</div>
 			{/* <div style={{ display: 'flex', marginTop: 20, width: '50%', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'column', textAlign: 'start' }}></div> */}
-			<br />
-			<br />
+
 			<p className={classes.title}>Analytics</p>
 			<div className={classes.widgetContainer}>
 				<div className={classes.widget}>
 					<ChartWidget
-						title="Average Score on Each Exercise"
+						title="Score on Each Exercise"
 						valueTitle="Points"
 						categories={categories}
 						data={widgetData1}
@@ -243,7 +260,7 @@ function TeacherProfilePage() {
 				</div>
 				<div className={classes.widget}>
 					<ChartWidget
-						title="Average Number of Attempts Per Exercise"
+						title="Number of Attempts Per Exercise"
 						valueTitle="Times"
 						categories={categories}
 						data={widgetData2}
@@ -251,7 +268,7 @@ function TeacherProfilePage() {
 				</div>
 				<div className={classes.widget}>
 					<ChartWidget
-						title="Average Time Spent on Each Exercise"
+						title="Time Spent on All Exercises"
 						valueTitle="Minutes"
 						categories={categories}
 						data={widgetData3}
@@ -259,7 +276,7 @@ function TeacherProfilePage() {
 				</div>
 			</div>
 
-			<p className={classes.title}>Students</p>
+			<p className={classes.title}>Exercise Data</p>
 			<br />
 
 			<section className="py-1 bg-blueGray-50" style={{ width: '67%', fontSize: '16px' }}>
@@ -299,33 +316,38 @@ function TeacherProfilePage() {
 											Current Lesson
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Exercise Reached
+											Exercise Done
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Avg. Score
+											Date Completed
 										</th>
 									</tr>
 								</thead>
 								<tbody>
-									{studentsArr.map((item, index) => (
-										<tr key={item.key} onClick={() => handleOnClick(item.studentName)}>
+									{lessonsArr.map((item, index) => (
+										<tr
+											key={item.exerciseName}
+											onClick={() => {
+												setModalExerciseName(item.exerciseName);
+												setModalOpen(!modalOpen);
+											}}
+										>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
-												{item.studentName}
-											</td>
-											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
 												{item.lessonName}
 											</td>
-											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
 												{item.exerciseName}
+											</td>
+											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
+												{item.completed}
 											</td>
 											<td
 												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
-												style={{ fontSize: '17px' }}
+												style={{
+													fontSize: '16.5px'
+												}}
 											>
-												{item.avgScore} &nbsp;
-												{index == 0 ? '🥇' : ''}
-												{index == 1 ? '🥈' : ''}
-												{index == 2 ? '🥉' : ''}
+												{item.dateCompleted}
 											</td>
 										</tr>
 									))}
@@ -344,8 +366,138 @@ function TeacherProfilePage() {
 					</div>
 				</footer>
 			</section>
+
+			{modalOpen ? (
+				<div>
+					<Modal
+						aria-labelledby="transition-modal-title"
+						aria-describedby="transition-modal-description"
+						open={modalOpen}
+						onClose={handleClose}
+						closeAfterTransition
+						BackdropComponent={Backdrop}
+						BackdropProps={{
+							timeout: 500
+						}}
+					>
+						<Fade in={modalOpen}>
+							<Box sx={modalStyle}>
+								<div
+									id="transition-modal-title"
+									className="font-semibold"
+									style={{ marginBottom: '9px', fontSize: 24 }}
+								>
+									{modalExerciseName}
+								</div>
+								<div id="transition-modal-description">
+									<div className={classes.smallerInfo} style={{ padding: '10px' }}>
+										<div className={classes.modalInfoRow}>
+											<div className="font-medium">Score:</div>
+											<div>50 points</div>
+										</div>
+										<div className={classes.modalInfoRow}>
+											<div className="font-medium">Time to Finish:</div>
+											<div>40 seconds</div>
+										</div>
+										<div className={classes.modalInfoRow}>
+											<div className="font-medium">Attempts:</div>
+											<div>5 attempts</div>
+										</div>
+										<div className={classes.smallerInfoRow}>
+											<div className="font-medium">Mistakes:</div>
+											<div>7 mistakes</div>
+										</div>
+									</div>
+								</div>
+							</Box>
+						</Fade>
+					</Modal>
+				</div>
+			) : (
+				<></>
+			)}
+
+			<p className={classes.title} style={{ marginTop: '80px' }}>
+				Comments
+			</p>
+			<br />
+
+			<Comment1></Comment1>
+			<br />
+			<br />
+			<Comment2></Comment2>
 		</div>
 	);
 }
 
-export default TeacherProfilePage;
+function Comment1() {
+	return (
+		<div className="flex items-center justify-center w-screen pt-6" style={{ fontSize: '12px' }}>
+			<div
+				className="text-black p-4 flex"
+				style={{
+					position: 'relative'
+					// boxShadow: 'rgb(149 157 165 / 50%) 0px 3px 4px'
+				}}
+			>
+				<img
+					className="rounded-full shadow-lg"
+					src="assets/images/custom/admin_picture.png"
+					style={{ height: 60, width: 60, left: -40, top: 6, position: 'absolute' }}
+				/>
+				<div>
+					<div
+						className="bg-gray-100 dark:bg-gray-700 rounded-3xl px-4 pt-2 pb-2.5"
+						style={{ borderRadius: 15, padding: '30px 30px 30px 30px' }}
+					>
+						<div className="font-semibold text-sm leading-relaxed">Admin</div>
+						<div className="text-base leading-snug md:leading-normal" style={{ marginTop: 7 }}>
+							You're doing a great job! Keep it up!
+						</div>
+					</div>
+					<div className="text-sm ml-4 mt-0.5 text-gray-500 dark:text-gray-400">2 days ago</div>
+					{/* <div className="bg-white dark:bg-gray-700 border border-white dark:border-gray-700 rounded-full float-right -mt-8 mr-0.5 flex shadow items-center ">
+						<span className="text-sm ml-1 pr-1.5 text-gray-500 dark:text-gray-300">3</span>
+					</div> */}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function Comment2() {
+	return (
+		<div
+			className="flex items-center justify-center w-screen pt-6 bg-white dark:bg-gray-800"
+			style={{ fontSize: '12px' }}
+		>
+			<div
+				className="bg-white dark:bg-gray-800 text-black dark:text-gray-200 p-4 antialiased flex max-w-lg"
+				style={{ position: 'relative' }}
+			>
+				<img
+					className="rounded-full shadow-lg"
+					src="assets/images/custom/teacher.svg"
+					style={{ height: 60, width: 60, left: -40, top: 6, position: 'absolute' }}
+				/>
+				<div>
+					<div
+						className="bg-gray-100 dark:bg-gray-700 rounded-3xl px-4 pt-2 pb-2.5"
+						style={{ borderRadius: 15, padding: '30px 30px 30px 30px' }}
+					>
+						<div className="font-semibold text-sm leading-relaxed">Teacher Fatima</div>
+						<div className="text-base leading-snug md:leading-normal" style={{ marginTop: 7 }}>
+							Please remember to finish today's lesson
+							<br /> before the end of the day!
+						</div>
+					</div>
+					<div className="text-sm ml-4 mt-0.5 text-gray-500 dark:text-gray-400">3 days ago</div>
+					{/* <div className="bg-white dark:bg-gray-700 border border-white dark:border-gray-700 rounded-full float-right -mt-8 mr-0.5 flex shadow items-center ">
+						<span className="text-sm ml-1 pr-1.5 text-gray-500 dark:text-gray-300">3</span>
+					</div> */}
+				</div>
+			</div>
+		</div>
+	);
+}
+export default ProfilePage;

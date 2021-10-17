@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import { authRoles } from "app/auth";
 
-const ProfilePageConfig = {
+const StudentPageConfig = {
 	settings: {
 		layout: {
 			config: {}
@@ -10,10 +10,10 @@ const ProfilePageConfig = {
 	auth: authRoles.studentOrHigher, // ID: 2 Added this to block guest from accessing this page.
 	routes: [
 		{
-			path: '/pages/profile',
-			component: lazy(() => import('./ProfilePage'))
+			path: '/pages/student',
+			component: lazy(() => import('./StudentPage'))
 		}
 	]
 };
 
-export default ProfilePageConfig;
+export default StudentPageConfig;

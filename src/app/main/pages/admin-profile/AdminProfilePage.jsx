@@ -2,14 +2,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import ChartWidget from '../custom/ChartWidget';
 import { useSelector } from 'react-redux';
 import { IconButton, Icon } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import Backdrop from '@material-ui/core/Backdrop';
 import Box from '@material-ui/core/Box';
-import Modal from '@material-ui/core/Modal';
+// import Modal from '@material-ui/core/Modal';
 import Fade from '@material-ui/core/Fade';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { useState } from 'react';
+import './AdminProfilePage.css';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -69,11 +70,6 @@ const useStyles = makeStyles(theme => ({
 		display: 'flex',
 		justifyContent: 'space-between',
 		width: '100%'
-	},
-	numberBox: {
-		border: '1px solid black',
-		padding: '20px',
-		fontSize: '20px'
 	}
 }));
 
@@ -95,9 +91,9 @@ function AdminProfilePage() {
 	const [modalExerciseName, setModalExerciseName] = useState('false');
 	const handleOpen = () => setModalOpen(true);
 	const handleClose = () => setModalOpen(false);
-
 	const classes = useStyles();
 	const user = useSelector(({ auth }) => auth.user);
+	const history = useHistory();
 
 	const categories = [
 		'Exercise 1',
@@ -113,38 +109,125 @@ function AdminProfilePage() {
 	const widgetData2 = [4, 5, 3, 8, 7, 9, 11];
 	const widgetData3 = [20, 120, 45, 35, 80, 30, 65];
 
-	const studentsArr = [
+	const teachersArr = [
 		{
-			studentName: 'Ahmad Othman',
+			key: 1,
+			studentName: 'Fatima Ahmad',
 			lessonName: 'Arabic',
 			exerciseName: 'Exercise 3',
 			avgScore: 71
 		},
 		{
-			studentName: 'Saad Motamad',
+			key: 2,
+			studentName: 'Mohamad Yahia',
 			lessonName: 'Arabic',
 			exerciseName: 'Exercise 2',
 			avgScore: 79
 		},
 		{
-			studentName: 'Basel Tabakha',
+			key: 3,
+			studentName: 'Anas Nakawa',
 			lessonName: 'Arabic',
 			exerciseName: 'Exercise 5',
 			avgScore: 87
 		},
 		{
-			studentName: 'Yazan Qawasmeh',
+			key: 4,
+			studentName: 'Amira Mohamad',
 			lessonName: 'Arabic',
 			exerciseName: 'Exercise 4',
 			avgScore: 96
 		},
 		{
-			studentName: 'Saeed Sharabati',
+			key: 5,
+			studentName: 'Sami Saeed',
 			lessonName: 'Arabic',
 			exerciseName: 'Exercise 4',
 			avgScore: 84
 		}
 	];
+
+	let studentsArr = [
+		{
+			key: 1,
+			studentName: 'Yazan Qawasmeh',
+			teacherName: 'Anas Nakawa',
+			exerciseName: '12',
+			avgScore: 91
+		},
+		{
+			key: 2,
+			studentName: 'Yousef Yahia',
+			teacherName: 'Fatima Ahmad',
+			exerciseName: '11',
+			avgScore: 82
+		},
+		{
+			key: 3,
+			studentName: 'Saad Motamad',
+			teacherName: 'Sami Saeed',
+			exerciseName: '9',
+			avgScore: 79
+		},
+		{
+			key: 4,
+			studentName: 'Ahmad Othman',
+			teacherName: 'Sami Saeed',
+			exerciseName: '12',
+			avgScore: 71
+		},
+		{
+			key: 5,
+			studentName: 'Abdrahman AlShomaly',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '12',
+			avgScore: 96
+		},
+		{
+			key: 6,
+			studentName: 'Basel Tabakha',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '11',
+			avgScore: 87
+		},
+		{
+			key: 7,
+			studentName: 'Saeed Sharabati',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '10',
+			avgScore: 83
+		},
+		{
+			key: 8,
+			studentName: 'Salem Khalid',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '9',
+			avgScore: 72
+		},
+		{
+			key: 9,
+			studentName: 'Ahmad Waleed',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '12',
+			avgScore: 71
+		}
+	];
+
+	let sortedStudentsArr = studentsArr.sort((a, b) => {
+		return b.avgScore - a.avgScore;
+	});
+
+	let handleOnClickTeacher = name => {
+		// router.transitionTo();
+
+		history.push('/pages/teacher?n=' + name.replace(' ', '+'));
+	};
+
+	let handleOnClickStudent = name => {
+		// router.transitionTo();
+
+		history.push('/pages/student?n=' + name.replace(' ', '+'));
+	};
 
 	return (
 		<div className={classes.root}>
@@ -157,13 +240,13 @@ function AdminProfilePage() {
 					style={{ borderRadius: '15px' }}
 				>
 					<div className="overflow-hidden" style={{ height: '24rem', borderRadius: '15px 15px 0px 0px' }}>
-						<img className="w-full" src="assets\images\custom\classroom-graphic.jpg" alt="" />
+						<img className="w-full" src="assets\images\custom\admin_graphic.png" alt="" />
 					</div>
 					<div className="flex justify-center px-5 -mt-12">
 						<img
 							className="bg-white p-2 rounded-full"
-							src="assets/images/custom/student.svg"
-							alt="Student Image"
+							src="assets/images/custom/admin_picture.png"
+							alt="Admin Image"
 							style={{
 								width: '120px',
 								boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' //border: "solid 3px"
@@ -172,13 +255,14 @@ function AdminProfilePage() {
 					</div>
 					<div>
 						<div className="text-center px-14">
-							<h2 className="text-3xl font-bold pt-14">{user.data.displayName}</h2>
-							<p className="text-gray-400 mt-2">{user.data.email}</p>
+							{/* <h2 className="text-3xl font-bold pt-14">{user.data.displayName}</h2> */}
+							<h2 className="text-3xl font-bold pt-14">Admin</h2>
+							{/* <p className="text-gray-400 mt-2">{user.data.email}</p> */}
 							<div className={classes.smallerInfo}>
-								<div className={classes.smallerInfoRow}>
+								{/* <div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Number of Students:</div>
 									<div>20{user.data.teacherName}</div>
-								</div>
+								</div> */}
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Online:</div>
 									<div>2021-10-13{user.data.lastOnline}</div>
@@ -192,15 +276,11 @@ function AdminProfilePage() {
 						<hr className="mt-6" />
 						<div className="flex bg-gray-50 text-base" style={{ borderRadius: '15px' }}>
 							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
-								<p>
-									<span className="font-semibold">Ranking: </span>10
-								</p>
+								<p>{/* <span className="font-semibold">Ranking: </span>10 */}</p>
 							</div>
-							<div className="border"></div>
+							{/* <div className="border"></div> */}
 							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer">
-								<p>
-									<span className="font-semibold">Exercises: </span> 10/12
-								</p>
+								<p>{/* <span className="font-semibold">Completed: </span> 10 */}</p>
 							</div>
 						</div>
 					</div>
@@ -211,6 +291,17 @@ function AdminProfilePage() {
 			<br />
 			<p className={classes.title}>Analytics</p>
 			<div className={classes.widgetContainer}>
+				<div className="numberBoxesContainer">
+					<div className="numberBox">
+						<span>100</span>
+						Students
+					</div>
+					<div className="numberBox">
+						<span>5</span>
+						Teachers
+					</div>
+				</div>
+
 				<div className={classes.widget}>
 					<ChartWidget
 						title="Average Score on Each Exercise"
@@ -237,30 +328,104 @@ function AdminProfilePage() {
 				</div>
 			</div>
 
-			<div className={classes.numberBox}>Total Number of Students: 100</div>
-
-			<div className={classes.numberBox}>Total Number of Teachers: 5</div>
-
-			<p className={classes.title}>Students</p>
-			<br />
-
+			<p className={classes.title}>Teachers</p>
 			<section className="py-1 bg-blueGray-50" style={{ width: '67%', fontSize: '16px' }}>
-				<div className="w-full xl:w-8/12 mb-12 xl:mb-0 px-6 mx-auto mt-24">
-					<div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
+				<div className="w-full  mb-12 xl:mb-0 px-6 mx-auto mt-10">
+					<div className="relative flex flex-col min-w-0 break-words bg-white px-12 w-full mb-6 shadow-lg rounded ">
 						<div className="rounded-t mb-0 border-0">
 							<div className="flex flex-wrap items-center">
 								<div className="relative w-full py-4 px-14 max-w-full flex-grow flex-1">
-									<p className="font-semibold text-lg text-blueGray-700">Progress Report</p>
+									<p className="font-semibold text-lg text-blueGray-700">Data</p>
 								</div>
 								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
-									<button
-										className="text-white active:bg-indigo-600 font-medium px-6 py-3 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-										style={{ backgroundColor: '#F3B25F' }}
-										type="button"
+									<Button
+										variant="outlined"
+										style={{
+											color: '#F3B25F',
+											borderColor: '#F3B25F',
+											borderWidth: '1.5px',
+											fontSize: '16px',
+											padding: '0px 6px',
+											borderRadius: '5px'
+										}}
 									>
-										{/* <Icon className="refresh-icon">refresh</Icon> */}
 										Refresh
-									</button>
+									</Button>
+								</div>
+							</div>
+						</div>
+
+						<div className="block w-full overflow-x-auto" style={{ paddingBottom: '15px' }}>
+							<table className="items-center bg-transparent w-full border-collapse">
+								<thead>
+									<tr>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Name
+										</th>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Current Lesson
+										</th>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Avg. Exercise Reached
+										</th>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Student Average
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{teachersArr.map((item, index) => (
+										<tr key={item.key} onClick={() => handleOnClickTeacher(item.studentName)}>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
+												<Link to={item.url} className={classes.item} role="button">
+													{item.studentName}
+												</Link>
+											</td>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
+												{item.lessonName}
+											</td>
+											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
+												{item.exerciseName}
+											</td>
+											<td
+												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
+												style={{ fontSize: '17px' }}
+											>
+												{item.avgScore}
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</section>
+			<p className={classes.title} style={{ paddingTop: '40px' }}>
+				Students
+			</p>
+			<section className="py-1 bg-blueGray-50" style={{ width: '67%', fontSize: '16px' }}>
+				<div className="w-full  mb-12 xl:mb-0 px-6 mx-auto">
+					<div className="relative flex flex-col min-w-0 break-words bg-white px-12 w-full mb-6 shadow-lg rounded ">
+						<div className="rounded-t mb-0 border-0">
+							<div className="flex flex-wrap items-center">
+								<div className="relative w-full py-4 px-14 max-w-full flex-grow flex-1">
+									<p className="font-semibold text-lg text-blueGray-700">Data</p>
+								</div>
+								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
+									<Button
+										variant="outlined"
+										style={{
+											color: '#F3B25F',
+											borderColor: '#F3B25F',
+											borderWidth: '1.5px',
+											fontSize: '16px',
+											padding: '0px 6px',
+											borderRadius: '5px'
+										}}
+									>
+										Refresh
+									</Button>
 								</div>
 							</div>
 						</div>
@@ -279,13 +444,13 @@ function AdminProfilePage() {
 											Exercise Reached
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Avg. Score
+											Student Average
 										</th>
 									</tr>
 								</thead>
 								<tbody>
-									{studentsArr.map((item, index) => (
-										<tr key={item.exerciseName}>
+									{sortedStudentsArr.map((item, index) => (
+										<tr key={item.key} onClick={() => handleOnClickStudent(item.studentName)}>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
 												{item.studentName}
 											</td>
@@ -295,43 +460,22 @@ function AdminProfilePage() {
 											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
 												{item.exerciseName}
 											</td>
-											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
-												{index % 2 == 0 ? (
-													<Icon className="text-16 arrow-icon" style={{ color: '#10B991' }}>
-														arrow_upward
-													</Icon>
-												) : (
-													<Icon className="text-16 arrow-icon" style={{ color: '#F97316' }}>
-														arrow_downward
-													</Icon>
-												)}
-												{item.avgScore}
+											<td
+												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
+												style={{ fontSize: '17px' }}
+											>
+												{item.avgScore} &nbsp;
+												{index == 0 ? '🥇' : ''}
+												{index == 1 ? '🥈' : ''}
+												{index == 2 ? '🥉' : ''}
 											</td>
 										</tr>
 									))}
-									{/* <IconButton
-											// disableRipple
-											className="w-16 h-16 ltr:ml-4 rtl:mr-4 p-0"
-											color="inherit">
-											<Icon className="text-16 arrow-icon">
-												{/* {theme.direction === 'ltr' ? 'keyboard_arrow_right' : 'keyboard_arrow_left'} 
-												keyboard_arrow_right
-											</Icon>
-										</IconButton> */}
 								</tbody>
 							</table>
 						</div>
 					</div>
 				</div>
-				<footer className="relative pt-8 pb-6 mt-16">
-					<div className="container mx-auto px-6">
-						<div className="flex flex-wrap items-center md:justify-between justify-center">
-							<div className="w-full md:w-6/12 px-6 mx-auto text-center">
-								<div className="text-sm text-blueGray-500 font-semibold py-1"></div>
-							</div>
-						</div>
-					</div>
-				</footer>
 			</section>
 		</div>
 	);

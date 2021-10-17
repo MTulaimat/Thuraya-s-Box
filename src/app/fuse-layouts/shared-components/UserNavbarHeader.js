@@ -44,7 +44,10 @@ function UserNavbarHeader(props) {
 			className="user relative flex flex-col items-center justify-center pt-24 pb-64 mb-32 z-0 shadow-0"
 		>
 			<Typography className="username text-18 whitespace-nowrap font-semibold mb-4" color="inherit">
-				{user.data.displayName}
+				{/* {user.data.displayName} */}
+				{/* TODOXD REVERT THIS AFTERWARDS */}
+				{console.log('CHECKING WHERE I CAN GET NAME FROM: ', user)}
+				{user.name}
 			</Typography>
 			<Typography className="email text-13 opacity-50 whitespace-nowrap font-medium" color="inherit">
 				{user.data.email}
@@ -58,7 +61,7 @@ function UserNavbarHeader(props) {
 							? user.data.photoURL
 							: 'assets/images/custom/teacher.svg' //TODOXD get profile photo url running!
 					}
-					// src='assets/images/custom/teacher.svg'
+				// src='assets/images/custom/teacher.svg'
 				/>
 			</div>
 		</AppBar>

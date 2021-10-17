@@ -10,6 +10,10 @@ import UserInterfaceConfig from 'app/main/user-interface/UserInterfaceConfig';
 import pagesConfigs from 'app/main/pages/pagesConfigs';
 import musabPagesConfig from 'app/main/pages/custom/musabPagesConfig';
 import { Redirect } from 'react-router-dom';
+import { createStore } from 'redux';
+import { useState } from "react";
+import { useSelector } from "react-redux";
+
 
 const routeConfigs = [
 	...appsConfigs,
@@ -33,7 +37,17 @@ const routes = [
 	{
 		path: '/',
 		exact: true,
-		component: () => <Redirect to="/pages/custom/PlaygroundPage" /> // ID: 1 Changed this so that the homepage is the playground page.
+		component: () => {
+			const user = useSelector(({ auth }) => auth.user);
+
+			if (user.role.toString().includes('student')) {
+				return <Redirect to="/pages/custom/PlaygroundPage" />; // ID: 1 Changed this so that the homepage is the playground page.
+			} else if (user.role.toString().includes('teacher')) {
+				return <Redirect to="/pages/teacher" />;
+			} else {
+				return <Redirect to="/pages/admin" />;
+			}
+		}
 	},
 	{
 		component: () => <Redirect to="/pages/errors/error-404" />

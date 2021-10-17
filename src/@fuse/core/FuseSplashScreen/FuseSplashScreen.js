@@ -2,10 +2,11 @@ import { memo } from 'react';
 
 function FuseSplashScreen() {
 	return (
-		<div id="fuse-splash-screen" style={{backgroundColor: "#f5e4bd"}}>
+		<div id="fuse-splash-screen" style={{ backgroundColor: "#f5e4bd", backgroundImage: "url('/assets/images/custom/loading_background.jpg')", backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}>
 			<div className="center">
-				<div className="logo">
+				<div className="logo" style={{ marginBottom: 4 }}>
 					<img width="128" src="assets/images/logos/Thurayas%20box%20-%20Logo%20only.svg" alt="logo" />
+					{/* LOADING SCREEN 2 */}
 				</div>
 				<div className="spinner-wrapper">
 					<div className="spinner">

@@ -20,14 +20,14 @@ export const setUserDataFirebase = (user, authUser) => async dispatch => {
 		// Set user data but do not update
 		return dispatch(setUserData(user));
 	}
- 
+
 	// console.log("src/app/auth/store/userSlice.js user", user)
 
 	// console.log("src/app/auth/store/userSlice.js ", authUser)
 
-	let userData = _.merge({}, authUser, user)
+	let userData = _.merge({}, authUser, user);
 
-	console.log("src/app/auth/store/userSlice.js ", userData)
+	console.log("src/app/auth/store/userSlice.js ", authUser);
 
 	// Create missing user settings
 	return dispatch(createUserSettingsFirebase(userData));
@@ -39,6 +39,7 @@ export const createUserSettingsFirebase = authUser => async (dispatch, getState)
 	const { currentUser } = firebase.auth();
 
 
+	console.log("CHECKING NAME FROM WHERE 2:", authUser);
 	/**
 	 * Merge with current Settings
 	 */
@@ -46,6 +47,7 @@ export const createUserSettingsFirebase = authUser => async (dispatch, getState)
 		uid: authUser.uid,
 		from: 'firebase',
 		role: authUser.role,
+		name: authUser.name,
 		data: {
 			displayName: authUser.displayName,
 			email: authUser.email,
@@ -65,16 +67,16 @@ export const createUserSettingsFirebase = authUser => async (dispatch, getState)
 
 export const setUserData = user => async (dispatch, getState) => {
 	/*
-        You can redirect the logged-in user to a specific route depending on his role
-         */
+		You can redirect the logged-in user to a specific route depending on his role
+		 */
 
 	history.location.state = {
 		redirectUrl: user.redirectUrl // for example 'apps/academy'
 	};
 
 	/*
-    Set User Settings
-     */
+	Set User Settings
+	 */
 	dispatch(setDefaultSettings(user.data.settings));
 
 	dispatch(setUser(user));
@@ -145,7 +147,8 @@ export const updateUserData = user => async (dispatch, getState) => {
 			firebaseService
 				.updateUserData(user)
 				.then(() => {
-					dispatch(showMessage({ message: 'User data saved to firebase' }));
+					//dispatch(showMessage({ message: 'User data saved to firebase' }));
+					// TODOXD Show different message when user is logged in. and stop it from always saving user data on every page reload (doesn't make sense)
 				})
 				.catch(error => {
 					dispatch(showMessage({ message: error.message }));

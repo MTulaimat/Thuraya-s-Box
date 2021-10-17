@@ -21,7 +21,7 @@ import MaintenancePageConfig from './maintenance/MaintenancePageConfig';
 import PricingStyle1PageConfig from './pricing/style-1/PricingStyle1PageConfig';
 import PricingStyle2PageConfig from './pricing/style-2/PricingStyle2PageConfig';
 import PricingStyle3PageConfig from './pricing/style-3/PricingStyle3PageConfig';
-import ProfilePageConfig from './profile/ProfilePageConfig';
+import StudentPageConfig from './profile/StudentPageConfig';
 import ClassicSearchPageConfig from './search/classic/ClassicSearchPageConfig';
 import ModernSearchPageConfig from './search/modern/ModernSearchPageConfig';
 import AdminProfilePageConfig from "./admin-profile/AdminProfilePageConfig";
@@ -50,7 +50,7 @@ const pagesConfigs = [
 	PricingStyle1PageConfig,
 	PricingStyle2PageConfig,
 	PricingStyle3PageConfig,
-	ProfilePageConfig,
+	StudentPageConfig,
 	AdminProfilePageConfig,
 	TeacherProfilePageConfig,
 	ClassicSearchPageConfig,

@@ -1,0 +1,35 @@
+.numberBoxesContainer {
+	display: flex;
+	justify-content: center;
+	width: 70%;
+	margin-bottom: 40px;
+}
+
+.numberBox {
+	border: 2px solid #f8d683;
+	padding: 30px;
+	font-size: 20px;
+	width: 200px;
+	text-align: center;
+	border-radius: 15px;
+}
+
+.numberBox:first-child {
+	margin-right: 50px;
+}
+
+.numberBox span {
+	font-weight: 600;
+	font-size: 35px;
+	padding-top: 15px;
+	display: block;
+}
+
+tbody tr:hover {
+	background-color: rgb(238, 238, 238);
+	cursor: pointer;
+}
+
+tr {
+	user-select: none;
+}

@@ -89,7 +89,8 @@
         "velocity-animate": "1.5.2",
         "velocity-react": "1.4.3",
         "web-vitals": "^0.2.4",
-        "yup": "0.32.9"
+        "yup": "0.32.9",
+        "use-url-search-params": "^2.3.13"
     },
     "peerDependencies": {
         "autoprefixer": "9.8.6",

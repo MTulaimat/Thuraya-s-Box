@@ -9,7 +9,7 @@ function Callback(props) {
 
 	useEffect(() => {
 		auth0Service.onAuthenticated(() => {
-			dispatch(showMessage({ message: 'Logging in with Auth0' }));
+			//dispatch(showMessage({ message: 'Logging in with Auth0' }));
 
 			/**
 			 * Retrieve user data from Auth0

@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import ChartWidget from '../custom/ChartWidget';
 import { useSelector } from 'react-redux';
 import { IconButton, Icon } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Backdrop from '@material-ui/core/Backdrop';
 import Box from '@material-ui/core/Box';
 import Modal from '@material-ui/core/Modal';
@@ -10,6 +10,7 @@ import Fade from '@material-ui/core/Fade';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { useState } from 'react';
+import './Leaderboard.css';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -119,64 +120,185 @@ function ProfilePage() {
 	const [modalExerciseName, setModalExerciseName] = useState('false');
 	const handleOpen = () => setModalOpen(true);
 	const handleClose = () => setModalOpen(false);
-
+	const history = useHistory();
 	const classes = useStyles();
 
-	const studentsArr = [
+	let studentsArr = [
 		{
+			key: 1,
 			studentName: 'Yazan Qawasmeh',
 			teacherName: 'Anas Nakawa',
-			exerciseName: '12/12',
-			avgScore: 96
+			exerciseName: '12',
+			avgScore: 91
 		},
 		{
-			studentName: 'Basel Tabakha',
-			teacherName: 'Anas Nakawa',
-			exerciseName: '11/12',
-			avgScore: 87
+			key: 2,
+			studentName: 'Yousef Yahia',
+			teacherName: 'Fatima Ahmad',
+			exerciseName: '11',
+			avgScore: 82
 		},
 		{
-			studentName: 'Saeed Sharabati',
-			teacherName: 'Anas Nakawa',
-			exerciseName: '10/12',
-			avgScore: 84
-		},
-		{
+			key: 3,
 			studentName: 'Saad Motamad',
-			teacherName: 'Anas Nakawa',
-			exerciseName: '9/12',
+			teacherName: 'Sami Saeed',
+			exerciseName: '9',
 			avgScore: 79
 		},
 		{
+			key: 4,
 			studentName: 'Ahmad Othman',
-			teacherName: 'Anas Nakawa',
-			exerciseName: '12/12',
+			teacherName: 'Sami Saeed',
+			exerciseName: '12',
 			avgScore: 71
+		},
+		{
+			key: 5,
+			studentName: 'Amer Ahmad',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '12',
+			avgScore: 96
+		},
+		{
+			key: 6,
+			studentName: 'Basel Tabakha',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '11',
+			avgScore: 87
+		},
+		{
+			key: 7,
+			studentName: 'Saeed Sharabati',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '10',
+			avgScore: 83
+		},
+		{
+			key: 8,
+			studentName: 'Salem Khalid',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '9',
+			avgScore: 72
+		},
+		{
+			key: 9,
+			studentName: 'Ahmad Waleed',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '12',
+			avgScore: 71
+		},
+		{
+			key: 10,
+			studentName: 'Ahmad Khalid',
+			teacherName: 'Fatima Ahmad',
+			exerciseName: '11',
+			avgScore: 87
+		},
+		{
+			key: 11,
+			studentName: 'Abdullah Khaldon',
+			teacherName: 'Sami Saeed',
+			exerciseName: '10',
+			avgScore: 82
+		},
+		{
+			key: 12,
+			studentName: 'Mustafa Salem',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '9',
+			avgScore: 79
+		},
+		{
+			key: 13,
+			studentName: 'Rasheed Othman',
+			teacherName: 'Sami Saeed',
+			exerciseName: '12',
+			avgScore: 71
+		},
+		{
+			key: 14,
+			studentName: 'Abdrahman AlShomaly',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '12',
+			avgScore: 99
+		},
+		{
+			key: 15,
+			studentName: 'Qasim Ameen',
+			teacherName: 'Sami Saeed',
+			exerciseName: '11',
+			avgScore: 85
+		},
+		{
+			key: 16,
+			studentName: 'Taher Mansi',
+			teacherName: 'Sami Saeed',
+			exerciseName: '10',
+			avgScore: 84
+		},
+		{
+			key: 17,
+			studentName: 'Samer Osama',
+			teacherName: 'Anas Nakawa',
+			exerciseName: '9',
+			avgScore: 59
+		},
+		{
+			key: 18,
+			studentName: 'Omar Salah',
+			teacherName: 'Sami Saeed',
+			exerciseName: '12',
+			avgScore: 58
+		},
+		{
+			key: 19,
+			studentName: 'Mahmoud Barakat',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '10',
+			avgScore: 84
+		},
+		{
+			key: 20,
+			studentName: 'Muhab Qubaj',
+			teacherName: 'Amira Mohamad',
+			exerciseName: '12',
+			avgScore: 98
 		}
 	];
+
+	let sortedStudentsArr = studentsArr.sort((a, b) => {
+		return b.avgScore - a.avgScore;
+	});
+
+	let handleOnClick = name => {
+		history.push('/pages/student?n=' + name.replace(' ', '+'));
+	};
 
 	return (
 		<div className={classes.root}>
 			<p className={classes.title}>Leaderboards</p>
-			<br />
-
 			<section className="py-1 bg-blueGray-50" style={{ width: '67%', fontSize: '16px' }}>
-				<div className="w-full xl:w-8/12 mb-12 xl:mb-0 px-6 mx-auto mt-24">
-					<div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
+				<div className="w-full  mb-12 xl:mb-0 px-6 mx-auto">
+					<div className="relative flex flex-col min-w-0 break-words bg-white px-12 w-full mb-6 shadow-lg rounded ">
 						<div className="rounded-t mb-0 border-0">
 							<div className="flex flex-wrap items-center">
 								<div className="relative w-full py-4 px-14 max-w-full flex-grow flex-1">
-									<p className="font-semibold text-lg text-blueGray-700">Progress Report</p>
+									<p className="font-semibold text-lg text-blueGray-700">Data</p>
 								</div>
 								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
-									<button
-										className="text-white active:bg-indigo-600 font-medium px-6 py-3 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-										style={{ backgroundColor: '#F3B25F' }}
-										type="button"
+									<Button
+										variant="outlined"
+										style={{
+											color: '#F3B25F',
+											borderColor: '#F3B25F',
+											borderWidth: '1.5px',
+											fontSize: '16px',
+											padding: '0px 6px',
+											borderRadius: '5px'
+										}}
 									>
-										{/* <Icon className="refresh-icon">refresh</Icon> */}
 										Refresh
-									</button>
+									</Button>
 								</div>
 							</div>
 						</div>
@@ -185,6 +307,9 @@ function ProfilePage() {
 							<table className="items-center bg-transparent w-full border-collapse">
 								<thead>
 									<tr>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											#
+										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Name
 										</th>
@@ -200,8 +325,11 @@ function ProfilePage() {
 									</tr>
 								</thead>
 								<tbody>
-									{studentsArr.map((item, index) => (
-										<tr key={item.exerciseName}>
+									{sortedStudentsArr.map((item, index) => (
+										<tr key={item.key} onClick={() => handleOnClick(item.studentName)}>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
+												{index + 1}
+											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
 												{item.studentName}
 											</td>
@@ -211,7 +339,10 @@ function ProfilePage() {
 											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
 												{item.exerciseName}
 											</td>
-											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
+											<td
+												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
+												style={{ fontSize: '17px' }}
+											>
 												{item.avgScore} &nbsp;
 												{index == 0 ? '🥇' : ''}
 												{index == 1 ? '🥈' : ''}
@@ -219,15 +350,6 @@ function ProfilePage() {
 											</td>
 										</tr>
 									))}
-									{/* <IconButton
-											// disableRipple
-											className="w-16 h-16 ltr:ml-4 rtl:mr-4 p-0"
-											color="inherit">
-											<Icon className="text-16 arrow-icon">
-												{/* {theme.direction === 'ltr' ? 'keyboard_arrow_right' : 'keyboard_arrow_left'} 
-												keyboard_arrow_right
-											</Icon>
-										</IconButton> */}
 								</tbody>
 							</table>
 						</div>
