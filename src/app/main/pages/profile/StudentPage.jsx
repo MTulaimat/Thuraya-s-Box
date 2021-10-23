@@ -133,18 +133,10 @@ function ProfilePage() {
 	const classes = useStyles();
 	const user = useSelector(({ auth }) => auth.user);
 
-	const categories = [
-		'Exercise 1',
-		'Exercise 2',
-		'Exercise 3',
-		'Exercise 4',
-		'Exercise 5',
-		'Exercise 6',
-		'Exercise 7'
-	];
-	const widgetData1 = [70, 80, 35, 95, 70, 80, 35];
-	const widgetData2 = [60, 30, 25, 85, 20, 40, 55];
-	const widgetData3 = [20, 120, 45, 35, 80, 30, 65];
+	const categories = ['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6'];
+	const widgetData1 = [70, 80, 35, 95, 70, 80];
+	const widgetData2 = [60, 30, 25, 85, 20, 40];
+	const widgetData3 = [20, 120, 45, 35, 80, 30];
 
 	const lessonsArr = [
 		{
@@ -218,7 +210,7 @@ function ProfilePage() {
 									<div>Fatima Ahmad{user.data.teacherName}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
-									<div className="font-semibold">Last Online:</div>
+									<div className="font-semibold">Last Active:</div>
 									<div>2021-10-13{user.data.lastOnline}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
@@ -237,7 +229,7 @@ function ProfilePage() {
 							<div className="border"></div>
 							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer select-none">
 								<p>
-									<span className="font-semibold">Completed: </span> 6
+									<span className="font-semibold">Lesson: </span> 6
 								</p>
 							</div>
 						</div>
@@ -313,7 +305,7 @@ function ProfilePage() {
 											Name
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Current Lesson
+											Exercise
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Exercise Done
@@ -402,6 +394,10 @@ function ProfilePage() {
 										<div className={classes.modalInfoRow}>
 											<div className="font-medium">Attempts:</div>
 											<div>5 attempts</div>
+										</div>
+										<div className={classes.modalInfoRow}>
+											<div className="font-medium">First Attempted:</div>
+											<div>2021-10-14</div>
 										</div>
 										<div className={classes.smallerInfoRow}>
 											<div className="font-medium">Mistakes:</div>
