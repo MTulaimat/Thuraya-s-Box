@@ -1,7 +1,6 @@
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { motion } from 'framer-motion';
 import { Controller, useForm } from 'react-hook-form';
-
 import { yupResolver } from '@hookform/resolvers/yup';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -40,6 +39,7 @@ const defaultValues = {
 	email: '',
 	password: '',
 	passwordConfirm: '',
+	level: '1',
 	acceptTermsConditions: false
 };
 
@@ -86,6 +86,26 @@ function RegisterPage() {
 											label="Name"
 											autoFocus
 											type="name"
+											error={!!errors.name}
+											helperText={errors?.name?.message}
+											variant="outlined"
+											required
+											fullWidth
+										/>
+									)}
+								/>
+
+								<Controller
+									name="level"
+									control={control}
+									render={({ field }) => (
+										<TextField
+											{...field}
+											className="mb-16"
+											type="number"
+											label="Level"
+											autoFocus
+											type="level"
 											error={!!errors.name}
 											helperText={errors?.name?.message}
 											variant="outlined"

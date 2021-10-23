@@ -18,21 +18,21 @@ export const submitRegister =
 		password,
 		email
 	}) =>
-	async dispatch => {
-		return jwtService
-			.createUser({
-				displayName,
-				password,
-				email
-			})
-			.then(user => {
-				dispatch(setUserData(user));
-				return dispatch(registerSuccess());
-			})
-			.catch(errors => {
-				return dispatch(registerError(errors));
-			});
-	};
+		async dispatch => {
+			return jwtService
+				.createUser({
+					displayName,
+					password,
+					email
+				})
+				.then(user => {
+					dispatch(setUserData(user));
+					return dispatch(registerSuccess());
+				})
+				.catch(errors => {
+					return dispatch(registerError(errors));
+				});
+		};
 
 export const registerWithFirebase = model => async dispatch => {
 	if (!firebaseService.auth) {
@@ -46,18 +46,19 @@ export const registerWithFirebase = model => async dispatch => {
 		displayName,
 		teacherEmail,
 		role,
-		currentExercise
+		currentExercise,
+		level
 	} = model;
 
 	// TODOXD warn user in form if teacher email doesnt exist!
 
-	if (role == 'student'){
+	if (role == 'student') {
 		let isTeacherEmail = await firebaseService.isTeacherEmail(teacherEmail);
-	
+
 		if (!isTeacherEmail) {
 			console.log("email doesnt exist!");
 			return;
-		} 
+		}
 	}
 
 	return firebaseService.auth
@@ -70,7 +71,9 @@ export const registerWithFirebase = model => async dispatch => {
 					email,
 					teacherEmail,
 					role,
-					currentExercise
+					currentExercise,
+					level,
+					completed: 0,
 				})
 			);
 

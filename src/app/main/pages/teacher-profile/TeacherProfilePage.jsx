@@ -107,19 +107,11 @@ function TeacherProfilePage() {
 	const user = useSelector(({ auth }) => auth.user);
 	const history = useHistory();
 	const location = useLocation();
-	const categories = [
-		'Exercise 1',
-		'Exercise 2',
-		'Exercise 3',
-		'Exercise 4',
-		'Exercise 5',
-		'Exercise 6',
-		'Exercise 7'
-	];
+	const categories = ['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6'];
 
-	const widgetData1 = [70, 80, 35, 95, 70, 80, 35];
-	const widgetData2 = [4, 5, 3, 8, 7, 9, 11];
-	const widgetData3 = [20, 120, 45, 35, 80, 30, 65];
+	const widgetData1 = [70, 80, 35, 95, 70, 80];
+	const widgetData2 = [4, 5, 3, 8, 7, 9];
+	const widgetData3 = [20, 120, 45, 35, 80, 30];
 
 	useEffect(() => {
 		window.scrollTo(0, 0);
@@ -206,7 +198,7 @@ function TeacherProfilePage() {
 									<div>20{user.data.teacherName}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
-									<div className="font-semibold">Last Online:</div>
+									<div className="font-semibold">Last Active:</div>
 									<div>2021-10-13{user.data.lastOnline}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
@@ -299,7 +291,7 @@ function TeacherProfilePage() {
 											Current Lesson
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Exercise Reached
+											Exercise Completed
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Avg. Score

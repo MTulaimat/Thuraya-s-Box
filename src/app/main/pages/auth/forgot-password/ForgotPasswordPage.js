@@ -54,8 +54,6 @@ function ForgotPasswordPage() {
 	const { isValid, dirtyFields, errors } = formState;
 	
 	const onSubmit = values => {
-		
-		console.log("VALUES: " + values.email);
 		FirebaseService.resetPassword(values.email);
 		reset(defaultValues);
 	}

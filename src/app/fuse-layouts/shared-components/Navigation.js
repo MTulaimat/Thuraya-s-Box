@@ -9,16 +9,12 @@ import { selectNavigation } from 'app/store/fuse/navigationSlice';
 import { navbarCloseMobile } from '../../store/fuse/navbarSlice';
 
 function Navigation(props) {
-
-	console.log("props:", props);
-	
 	const navigation = useSelector(selectNavigation);
 	const theme = useTheme();
 	const mdDown = useMediaQuery(theme.breakpoints.down('md'));
 	const dispatch = useDispatch();
 
 	function handleItemClick(item) {
-		console.log("NAVIGATION ITEM: ", item);
 		mdDown && dispatch(navbarCloseMobile());
 	}
 

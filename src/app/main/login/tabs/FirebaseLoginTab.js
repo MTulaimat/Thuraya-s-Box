@@ -69,6 +69,7 @@ function FirebaseLoginTab(props) {
 							error={!!errors.email}
 							helperText={errors?.email?.message}
 							InputProps={{
+								tabIndex: "1",
 								endAdornment: (
 									<InputAdornment position="end">
 										<Icon className="text-20" color="action">
@@ -95,6 +96,7 @@ function FirebaseLoginTab(props) {
 							error={!!errors.password}
 							helperText={errors?.password?.message}
 							InputProps={{
+								tabIndex: "2",
 								className: 'pr-2',
 								type: showPassword ? 'text' : 'password',
 								endAdornment: (
@@ -117,10 +119,12 @@ function FirebaseLoginTab(props) {
 					type="submit"
 					variant="contained"
 					color="primary"
+					tabIndex="2"
 					className="w-full mx-auto mt-16"
 					aria-label="LOG IN"
 					disabled={_.isEmpty(dirtyFields) || !isValid}
 					value="firebase"
+					tabIndex="3"
 				>
 					Log in
 				</Button>

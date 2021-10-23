@@ -11,7 +11,6 @@ function StudentsPage() {
 	const [hasError, setErrors] = useState(false);
 	const [students, setStudents] = useState([]);
 	const [load, setLoad] = useState(false);
-	console.log(++i);
 
 	const user = useSelector(({ auth }) => auth.user);
 

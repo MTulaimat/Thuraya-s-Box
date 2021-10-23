@@ -78,11 +78,11 @@ function ProjectDashboardAppHeader(props) {
 					{user.data.photoURL ? (
 						<Avatar className="w-52 h-52 sm:w-64 sm:h-64" alt="user photo" src={user.data.photoURL} />
 					) : (
-						<Avatar className="w-52 h-52 sm:w-64 sm:h-64">{user.data.displayName[0]}</Avatar>
+						<Avatar className="w-52 h-52 sm:w-64 sm:h-64">{user.name[0]}</Avatar>
 					)}
 					<div className="mx-12 min-w-0">
 						<Typography className="text-18 sm:text-24 md:text-32 font-bold leading-none mb-8 tracking-tight">
-							Welcome back, {user.data.displayName}!
+							Welcome back, {user.name}!
 						</Typography>
 
 						<div className="flex items-center opacity-60 truncate">

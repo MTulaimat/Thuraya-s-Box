@@ -9,8 +9,10 @@ import Box from '@material-ui/core/Box';
 import Fade from '@material-ui/core/Fade';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './AdminProfilePage.css';
+import FirebaseService from 'app/services/firebaseService';
+import { forEach } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -95,19 +97,22 @@ function AdminProfilePage() {
 	const user = useSelector(({ auth }) => auth.user);
 	const history = useHistory();
 
-	const categories = [
-		'Exercise 1',
-		'Exercise 2',
-		'Exercise 3',
-		'Exercise 4',
-		'Exercise 5',
-		'Exercise 6',
-		'Exercise 7'
-	];
+	const [teacherData, setTeacherData] = useState([]);
+	const [avgExercise, setAvgExercise] = useState([]);
 
-	const widgetData1 = [70, 80, 35, 95, 70, 80, 35];
-	const widgetData2 = [4, 5, 3, 8, 7, 9, 11];
-	const widgetData3 = [20, 120, 45, 35, 80, 30, 65];
+	// let createFirestoreData = () => {
+	//   return FirebaseService.createFakeData();
+	// };
+
+	let calculateLessonCompletedForAllStudents = () => {
+		return FirebaseService.calculateLessonCompletedForAllStudents();
+	};
+
+	const categories = ['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6'];
+
+	const widgetData1 = [70, 80, 35, 95, 70, 80];
+	const widgetData2 = [4, 5, 3, 8, 7, 9];
+	const widgetData3 = [20, 120, 45, 35, 80, 30];
 
 	const teachersArr = [
 		{
@@ -119,7 +124,7 @@ function AdminProfilePage() {
 		},
 		{
 			key: 2,
-			studentName: 'Mohamad Yahia',
+			studentName: 'Osama Qasim',
 			lessonName: 'Arabic',
 			exerciseName: 'Exercise 2',
 			avgScore: 79
@@ -218,16 +223,25 @@ function AdminProfilePage() {
 	});
 
 	let handleOnClickTeacher = name => {
-		// router.transitionTo();
-
 		history.push('/pages/teacher?n=' + name.replace(' ', '+'));
 	};
 
 	let handleOnClickStudent = name => {
-		// router.transitionTo();
-
 		history.push('/pages/student?n=' + name.replace(' ', '+'));
 	};
+
+	useEffect(() => {
+		FirebaseService.getAllTeacher().then(data => {
+			setTeacherData(data);
+
+			for (let i = 0; i < data.length; i++) {
+				FirebaseService.getAvgExerciseForTeacher(data).then(data => {
+					console.log('getAvgExerciseForTeacher: ', data);
+					setAvgExercise([...data]);
+				});
+			}
+		});
+	}, []);
 
 	return (
 		<div className={classes.root}>
@@ -255,16 +269,16 @@ function AdminProfilePage() {
 					</div>
 					<div>
 						<div className="text-center px-14">
-							{/* <h2 className="text-3xl font-bold pt-14">{user.data.displayName}</h2> */}
-							<h2 className="text-3xl font-bold pt-14">Admin</h2>
-							{/* <p className="text-gray-400 mt-2">{user.data.email}</p> */}
+							<h2 className="text-3xl font-bold pt-14">{user.name}</h2>
+							{/* <h2 className="text-3xl font-bold pt-14">Admin</h2> */}
+							<p className="text-gray-400 mt-2">{user.data.email}</p>
 							<div className={classes.smallerInfo}>
 								{/* <div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Number of Students:</div>
 									<div>20{user.data.teacherName}</div>
 								</div> */}
 								<div className={classes.smallerInfoRow}>
-									<div className="font-semibold">Last Online:</div>
+									<div className="font-semibold">Last Active:</div>
 									<div>2021-10-13{user.data.lastOnline}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
@@ -366,7 +380,7 @@ function AdminProfilePage() {
 											Current Lesson
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Avg. Exercise Reached
+											Avg. Exercise Completed
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Student Average
@@ -374,25 +388,21 @@ function AdminProfilePage() {
 									</tr>
 								</thead>
 								<tbody>
-									{teachersArr.map((item, index) => (
-										<tr key={item.key} onClick={() => handleOnClickTeacher(item.studentName)}>
+									{teacherData.map((item, index) => (
+										<tr key={item.id} onClick={() => handleOnClickTeacher(item.name)}>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
-												<Link to={item.url} className={classes.item} role="button">
-													{item.studentName}
-												</Link>
+												{item.name}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
-												{item.lessonName}
+												Arabic
 											</td>
 											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
-												{item.exerciseName}
+												{!isNaN(avgExercise[index]) ? Math.round(avgExercise[index]) : ''}
 											</td>
 											<td
 												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
 												style={{ fontSize: '17px' }}
-											>
-												{item.avgScore}
-											</td>
+											></td>
 										</tr>
 									))}
 								</tbody>
@@ -401,6 +411,9 @@ function AdminProfilePage() {
 					</div>
 				</div>
 			</section>
+
+			{/* --------------------------------------------------------------------------------------------- */}
+
 			<p className={classes.title} style={{ paddingTop: '40px' }}>
 				Students
 			</p>
@@ -441,7 +454,7 @@ function AdminProfilePage() {
 											Current Lesson
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Exercise Reached
+											Exercise Completed
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Student Average
@@ -455,7 +468,7 @@ function AdminProfilePage() {
 												{item.studentName}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
-												{item.lessonName}
+												Arabic
 											</td>
 											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
 												{item.exerciseName}
@@ -477,6 +490,15 @@ function AdminProfilePage() {
 					</div>
 				</div>
 			</section>
+
+			<div>
+				<br />
+				<br />
+				{/* <button onClick={() => createFirestoreData()}>Create Firestore Data</button> */}
+				<button onClick={() => calculateLessonCompletedForAllStudents()}>
+					Recalculate Lesson Completed For All Students
+				</button>
+			</div>
 		</div>
 	);
 }

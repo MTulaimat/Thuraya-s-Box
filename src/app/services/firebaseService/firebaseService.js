@@ -7,7 +7,8 @@ import {
 	setDoc
 } from 'firebase/firestore';
 import {
-	reject
+	random,
+	reject, VERSION
 } from 'lodash';
 import {
 	use
@@ -38,6 +39,68 @@ class FirebaseService {
 		success(true);
 	}
 
+	getAllTeacher = () => {
+		if (!firebase.apps.length) {
+			return false;
+		}
+
+		var usersRef = this.firestore.collection("users");
+		var query = usersRef.where("role", "array-contains", "teacher");
+
+		return new Promise((resolve, reject) => {
+			query.get()
+				.then((querySnapshot) => {
+					// querySnapshot.forEach((doc) => {
+					// doc.data() is never undefined for query doc snapshots
+					// console.log(doc.id, " => ", doc.data());
+					// });
+					let data = querySnapshot.docs.map(doc => {
+						return {
+							id: doc.id,
+							...doc.data()
+						};
+					});
+					resolve(data);
+				})
+				.catch((error) => {
+					console.log("Error getting documents: ", error);
+					reject(error);
+				});
+		});
+	};
+
+	getAvgExerciseForTeacher = async (teachersData) => {
+		if (!firebase.apps.length) {
+			return false;
+		}
+
+		let result = [];
+
+		return new Promise(async (resolve, reject) => {
+
+			for (let i = 0; i < teachersData.length; i++) {
+				let querySnapshot = await this.firestore.collection("users")
+					.where("teacherEmail", "==", teachersData[i].email)
+					.get();
+
+				let data = querySnapshot.docs.map(doc => {
+					return {
+						id: doc.id,
+						...doc.data()
+					};
+				});
+
+				let res;
+				res = data.reduce((a, b) => a + b.completed, 0);
+				res = res / data.length;
+
+				result[i] = res;
+			}
+
+			resolve(result);
+		});
+	};
+
 	getTeacherStudents = teacherEmail => {
 		if (!firebase.apps.length) {
 			return false;
@@ -47,7 +110,6 @@ class FirebaseService {
 		var query = usersRef.where("teacherEmail", "==", teacherEmail);
 
 		return new Promise((resolve, reject) => {
-
 			query.get()
 				.then((querySnapshot) => {
 					// querySnapshot.forEach((doc) => {
@@ -139,15 +201,13 @@ class FirebaseService {
 			return false;
 		}
 		return new Promise((resolve, reject) => {
-			console.log(userId);
 			var userDocRef = this.firestore.collection('users').doc(userId);
 
 			userDocRef
 				.get()
 				.then(doc => {
-					console.log("FASFASFASASFASFSAFASFASFSAFASFASFSA", doc.data());
 					if (doc.exists) {
-						console.log('Document data:', doc.data());
+						console.log('getUserData: ', doc.data());
 						resolve(doc.data());
 					} else {
 						// doc.data() will be undefined in this case
@@ -195,19 +255,17 @@ class FirebaseService {
 		}
 
 		// Add a new document in collection		
-		console.log("fasgwseohgewoigjewojgioewjoiw", user);
 		return this.firestore.collection('users')
 			.doc(user.uid)
 			.set({
 				name: user.name || user.data.displayName,
 				displayName: user.name || user.data.displayName,
-				// name: user.data.displayName != null ? user.data.displayName : user.name, // TODOXD COME BACK HERE!!
 				email: user.data.email,
 				role: user.role,
 				teacherEmail: user.data.teacherEmail ? user.data.teacherEmail.toLowerCase() : '',
 				currentExercise: user.currentExercise != undefined ? user.currentExercise : null
 				// TODOXD continue here
-			})
+			}, { merge: true })
 			.then(() => {
 				console.log('Document successfully written!');
 			})
@@ -215,6 +273,333 @@ class FirebaseService {
 				console.error('Error writing document: ', error);
 			});
 		//return this.db.ref(`users/${user.uid}`).set(user);
+	};
+
+	createFakeData = async () => {
+		if (!firebase.apps.length) {
+			return false;
+		}
+
+		let fakeFirstNames = [
+			"Mohamad",
+			"Omar",
+			"Ali",
+			"Ahmad",
+			"Ibrahim",
+			"Yousef",
+			"Khalil",
+			"Fatima",
+			"Lena",
+			"Amira",
+			"Aisha",
+			"Zahra",
+			"Alia",
+			"Salma",
+			"Zainab",
+			"Aya",
+			"Reem",
+			"Malak",
+			"Yasmin",
+			"Farah",
+			"Kareem",
+			"Fahad",
+			"Faisal",
+			"Sultan",
+			"Yazan",
+			"Mahmoud",
+		];
+
+		let fakeLastNames = [
+			"Ammar",
+			"AlShomaly",
+			"AlQasim",
+			"AlRasheed",
+			"Qubbaj",
+			"Qawasmeh",
+			"AlSalem",
+			"AlOmary",
+			"AlOmary",
+			"Abadi",
+			"Badawi",
+			"Darwish",
+			"Ghazali",
+			"Kassab",
+			"Maamoun",
+			"Nabih",
+			"Najjar",
+			"Qadir",
+			"Qureshi",
+			"Qasem",
+			"Sameer",
+			"Morad",
+			"Tabakha",
+			"Othman",
+			"Husainy",
+			"AlYousef",
+		];
+
+		//used
+		let generatedStudentNames = [];
+
+		//unused
+		let teachers = ["Fatima Ahmad", "Mohamad Yahia", "Anas Nakawa", "Amira Mohamad", "Sami Saeed"];
+
+		//used
+		let teacherEmails = [
+			"teacher@mail.com",
+			"osamaqasim@mail.com",
+			"anasnakawa@mail.com",
+			"amiramohamad@mail.com",
+			"samisaeed@mail.com",
+		];
+
+		let incompleteExercise = {
+			attempts: 1,
+			completed: false,
+			exerciseId: "arabic-image-colorer-1",
+			lesson: "Arabic",
+			mistakes: 1,
+			order: 2,
+			level: 1,
+			studentId: "hCXvl0ARHFOz374VEH8Q5rLPCGB3",
+			title: "Letter Picker",
+		};
+
+		let allExercises = [{
+			order: 1,
+			id: "arabic-letter-picker-1",
+			lesson: "Arabic",
+			level: 1,
+			title: "Letter Picker",
+		}, {
+			order: 2,
+			id: "arabic-image-colorer-1",
+			lesson: "Arabic",
+			level: 1,
+			title: "Image Coloring",
+		}, {
+			order: 3,
+			id: "arabic-letter-drawer-1",
+			lesson: "Arabic",
+			level: 1,
+			title: "Letter Drawing",
+		}, {
+			id: "arabic-letter-dragger-1",
+			lesson: "Arabic",
+			level: 1,
+			order: 4,
+			title: "Letter Dragging",
+		}, {
+			id: "arabic-letter-orderer-1",
+			lesson: "Arabic",
+			level: 1,
+			order: 5,
+			title: "Letter Ordering",
+		}, {
+			id: "arabic-word-drawer-1",
+			lesson: "Arabic",
+			level: 1,
+			order: 6,
+			title: "Word Drawing",
+		}];
+
+		// score : 000, // Calculate like this: 100 - (mistakes * 2) - (time - 20)
+		// mistakes : 000, //RANDOMIZE FROM 0 to 3
+		// time : 000, //RANDOMIZE FROM 20 to 40
+
+		let exerciseSamples = [
+			[ // Sample 1 (3.5/6)
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+				{
+					completed: false,
+				},
+			],
+			[ // Sample 2 (5/6)
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+			],
+			[ // Sample 3 (2.5/6)
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+				{
+					completed: false,
+				},
+			],
+			[ // Sample 4 (1.5/6)
+				{
+					completed: true,
+				},
+				{
+					completed: false,
+				},
+			],
+			[ // Sample 5 (1.5/6)
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+				{
+					completed: false,
+				},
+			],
+			[ // Sample 6 (3/6)
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+				{
+					completed: true,
+				},
+			],
+		];
+
+		let i = 0;
+		while (i < 50) {
+			let randomFirst = random(25);
+			let randomLast = random(25);
+			let generatedName = fakeFirstNames[randomFirst] + " " + fakeLastNames[randomLast];
+
+			if (!generatedStudentNames.includes(generatedName)) {
+				generatedStudentNames.push(generatedName);
+
+				let teacherEmail = teacherEmails[i % 5];
+
+				setTimeout(() => {
+					this.firestore.collection('users')
+						.add({
+							name: generatedName,
+							displayName: generatedName,
+							email: generatedName.split(" ").join("").toLowerCase() + "@mail.com",
+							role: ["student"],
+							teacherEmail: teacherEmail,
+							// currentExercise: calculate this one on the front end
+						})
+						.then((docRef) => {
+							console.log('Student document successfully written!');
+
+							let randomExercisesSample = random(exerciseSamples.length - 1);
+							let pickedExercises = _.cloneDeep(exerciseSamples[randomExercisesSample]);
+							for (let j = 0; j < pickedExercises.length; j++) {
+
+								let completeExercise = {
+									attempts: 1,
+									completed: true,
+									exerciseId: "arabic-letter-picker-1",
+									lesson: "Arabic",
+									mistakes: 1,
+									order: 1,
+									level: 1,
+									score: 80,
+									studentId: "hCXvl0ARHFOz374VEH8Q5rLPCGB3",
+									time: 30,
+									title: "Letter Picker",
+								};
+
+								pickedExercises[j].level = 1;
+								pickedExercises[j].order = j + 1;
+								pickedExercises[j].lesson = "Arabic";
+								pickedExercises[j].title = allExercises[j].title;
+								pickedExercises[j].exerciseId = allExercises[j].id;
+								pickedExercises[j].studentId = docRef.id;
+								pickedExercises[j].attempts = random(1, 3);
+								pickedExercises[j].mistakes = random(0, 3);
+
+								if (pickedExercises[j].completed === true) {
+									pickedExercises[j].time = random(20, 40);
+									pickedExercises[j].score = 100 - (2 * pickedExercises[j].mistakes) - pickedExercises[j].time;
+								}
+
+								setTimeout(() => {
+									this.firestore.collection('exerciseData').doc(docRef.id + "-" + pickedExercises[j].exerciseId).set(
+										pickedExercises[j]
+									).then(() => {
+										console.log("exerciseData document successfully written!");
+									});
+								}, 50);
+							}
+						})
+						.catch(error => {
+							console.error('Error writing document: ', error);
+						});
+				}, 50);
+
+				i++;
+			}
+		}
+	};
+
+	calculateLessonCompletedForAllStudents = async () => {
+		if (!firebase.apps.length) {
+			return false;
+		}
+
+		// get literally all students:
+		var querySnapshot = await this.firestore
+			.collection('users')
+			.where('role', 'array-contains', 'student')
+			.get();
+
+		let data = querySnapshot.docs.map(doc => {
+			return {
+				id: doc.id,
+				...doc.data()
+			};
+		});
+
+		// for each student, 
+		// get all their exercises, and see what's the heighest they completed (order)
+		for (var i = 0; i < data.length; i++) {
+			var querySnapshot2 = await this.firestore
+				.collection('exerciseData')
+				.where('studentId', '==', data[i].id)
+				.get();
+
+
+			let exerciseData = querySnapshot2.docs.map(doc => {
+				return {
+					id: doc.id,
+					...doc.data()
+				};
+			});;
+			console.log(exerciseData);
+			if (exerciseData.length > 0) {
+				var res = exerciseData.reduce((a, b) => { return (a.order > b.order) ? a : b; });
+				var completed = res.order;
+				if (res.completed != true) completed = completed - 1;
+				console.log('firebaseService.js ', completed);
+				this.firestore.collection('users').doc(data[i].id).update({ completed: completed });
+			}
+		}
+
 	};
 
 	onAuthStateChanged = callback => {
@@ -235,3 +620,5 @@ class FirebaseService {
 const instance = new FirebaseService();
 
 export default instance;
+
+

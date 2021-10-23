@@ -19,27 +19,27 @@ const defaultValues = {
 	password: '',
 	passwordConfirm: '',
 	teacherEmail: '',
-	role: ''
+	role: '',
+	level: 1
 };
 
 function FirebaseRegisterTab(props) {
 	/* * Form Validation Schema */
 	//Musab
 	const [isStudent, setIsStudent] = useState(true);
-	
-	
-	
+
 	const schema = yup.object().shape({
 		isStudent: yup.boolean(),
 		displayName: yup.string().required('You must enter a display name'),
 		email: yup.string().email('You must enter a valid email').required('You must enter an email'),
+		level: yup.string().required('You must enter a level'),
 		password: yup.string().required('Please enter your password.').min(8, 'Password is too short - should be 8 chars minimum.'),
-		passwordConfirm: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match'),		
-		teacherEmail: yup.string().when('isStudent',{
+		passwordConfirm: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match'),
+		teacherEmail: yup.string().when('isStudent', {
 			is: true, // alternatively: (val) => val == true
 			then: yup.string().email("You must enter a valid email").required('You must enter an email'),
 			otherwise: yup.string().email("You must enter a valid email"),
-		  })
+		})
 	});
 
 	// TODOXD when changing role on register change schema or wtv to not require teacherEmail, or just use notifications
@@ -61,9 +61,9 @@ function FirebaseRegisterTab(props) {
 		defaultValues,
 		resolver: yupResolver(schema)
 	});
-	
+
 	const { isValid, dirtyFields, errors } = formState;
-	
+
 	// useEffect(() => {
 	// 	let schemeToUse = isStudent ? schema : teacherSchema;
 	// 	({ control, formState, handleSubmit, reset, setError } = useForm({
@@ -83,7 +83,6 @@ function FirebaseRegisterTab(props) {
 	}, [authRegister.errors, setError]);
 
 	function onSubmit(model) {
-
 		var currRole = isStudent ? 'student' : 'teacher';
 		model.role = [currRole];
 		dispatch(registerWithFirebase(model));
@@ -118,6 +117,25 @@ function FirebaseRegisterTab(props) {
 							/>
 						)}
 					/>
+
+					{isStudent ? <Controller
+						name="level"
+						control={control}
+						render={({ field }) => (
+							<TextField
+								{...field}
+								className="mb-16"
+								type="number"
+								label="Level"
+								error={!!errors.displayName}
+								helperText={errors?.displayName?.message}
+								variant="outlined"
+								required
+								defaultValue="1"
+								inputProps={{ min: 1, max: 5 }}
+							/>
+						)}
+					/> : null}
 
 					<Controller
 						name="email"

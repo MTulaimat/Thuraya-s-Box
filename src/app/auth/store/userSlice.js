@@ -21,13 +21,7 @@ export const setUserDataFirebase = (user, authUser) => async dispatch => {
 		return dispatch(setUserData(user));
 	}
 
-	// console.log("src/app/auth/store/userSlice.js user", user)
-
-	// console.log("src/app/auth/store/userSlice.js ", authUser)
-
 	let userData = _.merge({}, authUser, user);
-
-	console.log("src/app/auth/store/userSlice.js ", authUser);
 
 	// Create missing user settings
 	return dispatch(createUserSettingsFirebase(userData));
@@ -38,8 +32,6 @@ export const createUserSettingsFirebase = authUser => async (dispatch, getState)
 	const fuseDefaultSettings = getState().fuse.settings.defaults;
 	const { currentUser } = firebase.auth();
 
-
-	console.log("CHECKING NAME FROM WHERE 2:", authUser);
 	/**
 	 * Merge with current Settings
 	 */
@@ -56,7 +48,6 @@ export const createUserSettingsFirebase = authUser => async (dispatch, getState)
 			settings: { ...fuseDefaultSettings }
 		}
 	});
-	// console.log(`src/app/auth/store/userSlice.js`, user)
 
 	currentUser.updateProfile(user.data);
 
