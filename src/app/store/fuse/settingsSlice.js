@@ -1,4 +1,4 @@
-import { createMuiTheme } from '@material-ui/core/styles';
+import { createTheme } from '@material-ui/core/styles';
 import { getContrastRatio } from '@material-ui/core/styles/colorManipulator';
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 import _ from '@lodash';
@@ -56,7 +56,7 @@ function generateMuiTheme(themes, id, direction) {
 	id = 'light2'; // ID: 3	Force light2 to always be selected!!
 
 	const data = _.merge({}, defaultThemeOptions, themes[id], mustHaveThemeOptions);
-	const response = createMuiTheme(
+	const response = createTheme(
 		_.merge({}, data, {
 			mixins: extendThemeWithMixins(data),
 			direction

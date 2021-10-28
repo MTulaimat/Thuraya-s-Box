@@ -9,9 +9,10 @@ import Modal from '@material-ui/core/Modal';
 import Fade from '@material-ui/core/Fade';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Leaderboard.css';
 import FirebaseService from 'app/services/firebaseService';
+import Switch from '@material-ui/core/Switch';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -123,156 +124,130 @@ function ProfilePage() {
 	const handleClose = () => setModalOpen(false);
 	const history = useHistory();
 	const classes = useStyles();
+	const [studentsData, setStudentsData] = useState([]);
+	const user = useSelector(({ auth }) => auth.user);
+	const [showMyStudentsOnly, setShowMyStudentsOnly] = useState(false);
+	const [refreshToggler, setRefreshToggler] = useState(false);
+	const [loading, setLoading] = useState(false);
 
-	let studentsArr = [
+	let allExercises = [
 		{
-			key: 1,
-			studentName: 'Yazan Qawasmeh',
-			teacherName: 'Anas Nakawa',
-			exerciseName: '12',
-			avgScore: 91
+			order: 1,
+			id: 'arabic-letter-picker-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Letter Picker'
 		},
 		{
-			key: 2,
-			studentName: 'Yousef Yahia',
-			teacherName: 'Fatima Ahmad',
-			exerciseName: '11',
-			avgScore: 82
+			order: 2,
+			id: 'arabic-image-colorer-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Image Coloring'
 		},
 		{
-			key: 3,
-			studentName: 'Saad Motamad',
-			teacherName: 'Sami Saeed',
-			exerciseName: '9',
-			avgScore: 79
+			order: 3,
+			id: 'arabic-letter-drawer-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Letter Drawing'
 		},
 		{
-			key: 4,
-			studentName: 'Ahmad Othman',
-			teacherName: 'Sami Saeed',
-			exerciseName: '12',
-			avgScore: 71
+			id: 'arabic-letter-dragger-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 4,
+			title: 'Letter Dragging'
 		},
 		{
-			key: 5,
-			studentName: 'Amer Ahmad',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '12',
-			avgScore: 96
+			id: 'arabic-letter-orderer-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 5,
+			title: 'Letter Ordering'
 		},
 		{
-			key: 6,
-			studentName: 'Basel Tabakha',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '11',
-			avgScore: 87
-		},
-		{
-			key: 7,
-			studentName: 'Saeed Sharabati',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '10',
-			avgScore: 83
-		},
-		{
-			key: 8,
-			studentName: 'Salem Khalid',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '9',
-			avgScore: 72
-		},
-		{
-			key: 9,
-			studentName: 'Ahmad Waleed',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '12',
-			avgScore: 71
-		},
-		{
-			key: 10,
-			studentName: 'Ahmad Khalid',
-			teacherName: 'Fatima Ahmad',
-			exerciseName: '11',
-			avgScore: 87
-		},
-		{
-			key: 11,
-			studentName: 'Abdullah Khaldon',
-			teacherName: 'Sami Saeed',
-			exerciseName: '10',
-			avgScore: 82
-		},
-		{
-			key: 12,
-			studentName: 'Mustafa Salem',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '9',
-			avgScore: 79
-		},
-		{
-			key: 13,
-			studentName: 'Rasheed Othman',
-			teacherName: 'Sami Saeed',
-			exerciseName: '12',
-			avgScore: 71
-		},
-		{
-			key: 14,
-			studentName: 'Abdrahman AlShomaly',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '12',
-			avgScore: 99
-		},
-		{
-			key: 15,
-			studentName: 'Qasim Ameen',
-			teacherName: 'Sami Saeed',
-			exerciseName: '11',
-			avgScore: 85
-		},
-		{
-			key: 16,
-			studentName: 'Taher Mansi',
-			teacherName: 'Sami Saeed',
-			exerciseName: '10',
-			avgScore: 84
-		},
-		{
-			key: 17,
-			studentName: 'Samer Osama',
-			teacherName: 'Anas Nakawa',
-			exerciseName: '9',
-			avgScore: 59
-		},
-		{
-			key: 18,
-			studentName: 'Omar Salah',
-			teacherName: 'Sami Saeed',
-			exerciseName: '12',
-			avgScore: 58
-		},
-		{
-			key: 19,
-			studentName: 'Mahmoud Barakat',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '10',
-			avgScore: 84
-		},
-		{
-			key: 20,
-			studentName: 'Muhab Qubaj',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '12',
-			avgScore: 98
+			id: 'arabic-word-drawer-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 6,
+			title: 'Word Drawing'
 		}
 	];
 
-	let sortedStudentsArr = studentsArr.sort((a, b) => {
-		return b.avgScore - a.avgScore;
-	});
+	let handleOnClick = id => {
+		history.push('/pages/student?id=' + id);
+	};
 
-	let handleOnClick = name => {
-		history.push('/pages/student?n=' + name.replace(' ', '+'));
+	let calculateAverageScoreForAllStudents = async () => {
+		// get all students
+		setLoading(true);
+
+		const query1 = await FirebaseService.firestore
+			.collection('users')
+			.where('role', 'array-contains', 'student')
+			.get();
+
+		for (const doc of query1.docs) {
+			// for each student, get their exercise data (only done exercises)
+			const query2 = await FirebaseService.firestore
+				.collection('exerciseData')
+				.where('studentId', '==', doc.id)
+				.where('completed', '==', true)
+				.get();
+
+			let count = query2.docs.length;
+			let sum = 0;
+
+			if (count > 0) {
+				for (const doc2 of query2.docs) {
+					// go over the exercise data of each student and calculate a sum
+					sum = sum + doc2.data().score;
+				}
+
+				await doc.ref.update({
+					averageScore: Math.round(sum / count)
+				});
+			} else {
+				await doc.ref.update({
+					averageScore: 0
+				});
+			}
+		}
+		setLoading(false);
+		setRefreshToggler(!refreshToggler);
+	};
+
+	useEffect(() => {
+		var usersRef = FirebaseService.firestore.collection('users');
+		var query;
+		if (user.role.includes('teacher') && showMyStudentsOnly === true)
+			query = usersRef.where('teacherEmail', '==', user.data.email).orderBy('averageScore', 'desc');
+		else if ((user.role.includes('teacher') && showMyStudentsOnly === false) || user.role.includes('admin'))
+			query = usersRef.where('role', 'array-contains', 'student').orderBy('averageScore', 'desc');
+		else if (user.role.includes('student'))
+			query = usersRef.where('teacherEmail', '==', user.data.teacherEmail).orderBy('averageScore', 'desc');
+
+		return new Promise((resolve, reject) => {
+			query
+				.get()
+				.then(querySnapshot => {
+					let data = querySnapshot.docs.map(doc => {
+						return {
+							id: doc.id,
+							...doc.data()
+						};
+					});
+					setStudentsData(data?.slice(0, 20));
+				})
+				.catch(error => {
+					console.log('Error getting documents: ', error);
+				});
+		});
+	}, [showMyStudentsOnly, refreshToggler]);
+
+	let onSwitchChanged = checked => {
+		setShowMyStudentsOnly(checked);
 	};
 
 	return (
@@ -282,11 +257,23 @@ function ProfilePage() {
 				<div className="w-full  mb-12 xl:mb-0 px-6 mx-auto">
 					<div className="relative flex flex-col min-w-0 break-words bg-white px-12 w-full mb-6 shadow-lg rounded ">
 						<div className="rounded-t mb-0 border-0">
-							<div className="flex flex-wrap items-center">
+							<div className="flex flex-wrap items-center" style={{ alignItems: 'baseline' }}>
 								<div className="relative w-full py-4 px-14 max-w-full flex-grow flex-1">
 									<p className="font-semibold text-lg text-blueGray-700">Data</p>
 								</div>
 								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
+									{user.role.includes('teacher') ? (
+										<span style={{ paddingRight: '40px' }}>
+											All Students
+											<Switch
+												checked={showMyStudentsOnly}
+												onChange={e => {
+													onSwitchChanged(e.target.checked);
+												}}
+											/>
+											My Students Only
+										</span>
+									) : null}
 									<Button
 										variant="outlined"
 										style={{
@@ -297,6 +284,7 @@ function ProfilePage() {
 											padding: '0px 6px',
 											borderRadius: '5px'
 										}}
+										onClick={() => calculateAverageScoreForAllStudents()}
 									>
 										Refresh
 									</Button>
@@ -308,43 +296,51 @@ function ProfilePage() {
 							<table className="items-center bg-transparent w-full border-collapse">
 								<thead>
 									<tr>
-										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+										<th
+											className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center"
+											style={{ width: '50px' }}
+										>
 											#
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Name
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Teacher
+											Current Lesson
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Exercises Completed
+											Exercise Completed
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Avg. Score
+											Student Average
 										</th>
 									</tr>
 								</thead>
 								<tbody>
-									{sortedStudentsArr.map((item, index) => (
-										<tr key={item.key} onClick={() => handleOnClick(item.studentName)}>
-											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
+									{studentsData.map((item, index) => (
+										<tr key={item.id} onClick={() => handleOnClick(item.id)}>
+											<td
+												className="border-t-0 align-middle border-l-0 border-r-0 whitespace-nowrap text-center text-blueGray-700"
+												style={{ width: '50px' }}
+											>
 												{index + 1}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
-												{item.studentName}
+												{item.name}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
-												{item.teacherName}
+												Arabic
 											</td>
-											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
-												{item.exerciseName}
+											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap font-mono">
+												{item.completed > 0
+													? `${item.completed}- ` + allExercises[item.completed].title
+													: '-'}
 											</td>
 											<td
 												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
 												style={{ fontSize: '17px' }}
 											>
-												{item.avgScore} &nbsp;
+												{!isNaN(item.averageScore) ? item.averageScore : '-'} &nbsp;
 												{index == 0 ? '🥇' : ''}
 												{index == 1 ? '🥈' : ''}
 												{index == 2 ? '🥉' : ''}
@@ -357,6 +353,37 @@ function ProfilePage() {
 					</div>
 				</div>
 			</section>
+			{loading && (
+				<div style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: '999' }}>
+					<button
+						type="button"
+						className="inline-flex items-center px-12 py-12 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-blue-600 hover:bg-rose-500 focus:border-rose-700 active:bg-rose-700 transition ease-in-out duration-150 cursor-default"
+						disabled=""
+					>
+						<svg
+							className="animate-spin -ml-1 mr-8 h-24 w-24 text-white"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<circle
+								className="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								strokeWidth="4"
+							></circle>
+							<path
+								className="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						Loading...
+					</button>
+				</div>
+			)}
 		</div>
 	);
 }

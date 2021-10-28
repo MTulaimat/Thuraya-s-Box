@@ -52,14 +52,23 @@ export const registerWithFirebase = model => async dispatch => {
 
 	// TODOXD warn user in form if teacher email doesnt exist!
 
+	let levelInt;
 	if (role == 'student') {
 		let isTeacherEmail = await firebaseService.isTeacherEmail(teacherEmail);
+
+		if (level != null && typeof (level) == 'string')
+			levelInt = parseInt(level);
 
 		if (!isTeacherEmail) {
 			console.log("email doesnt exist!");
 			return;
 		}
 	}
+
+	let result = await firebaseService.firestore.collection('users').where('email', '==', teacherEmail).get();
+	let teacherDocId = result.docs[0].id;
+	let teacherDoc = await firebaseService.firestore.collection('users').doc(teacherDocId).get();
+	let teacherName = teacherDoc.data().name;
 
 	return firebaseService.auth
 		.createUserWithEmailAndPassword(email, password)
@@ -70,9 +79,10 @@ export const registerWithFirebase = model => async dispatch => {
 					displayName,
 					email,
 					teacherEmail,
+					teacherName: teacherName,
 					role,
 					currentExercise,
-					level,
+					level: levelInt,
 					completed: 0,
 				})
 			);

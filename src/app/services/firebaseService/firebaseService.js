@@ -1,5 +1,4 @@
 /* eslint import/no-extraneous-dependencies: off*/
-import te from 'date-fns/locale/te';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import {
@@ -39,21 +38,75 @@ class FirebaseService {
 		success(true);
 	}
 
-	getAllTeacher = () => {
+	getAllStudents = () => {
 		if (!firebase.apps.length) {
 			return false;
 		}
 
 		var usersRef = this.firestore.collection("users");
-		var query = usersRef.where("role", "array-contains", "teacher");
+		var query = usersRef.where("role", "array-contains", "student").orderBy('averageScore', 'desc');
 
 		return new Promise((resolve, reject) => {
 			query.get()
 				.then((querySnapshot) => {
-					// querySnapshot.forEach((doc) => {
-					// doc.data() is never undefined for query doc snapshots
-					// console.log(doc.id, " => ", doc.data());
-					// });
+					let data = querySnapshot.docs.map(doc => {
+						return {
+							id: doc.id,
+							...doc.data()
+						};
+					});
+					resolve(data);
+				})
+				.catch((error) => {
+					console.log("Error getting documents: ", error);
+					reject(error);
+				});
+		});
+	};
+
+
+	getAllStudentsForTeacher = async (teacherId) => {
+		if (!firebase.apps.length) {
+			return false;
+		}
+
+		var teacherDoc = await this.firestore.collection("users").doc(teacherId).get();
+		console.log('teacherId ', teacherId);
+		console.log('teacherDoc ', teacherDoc.data());
+		var teacherEmail = teacherDoc.data().email;
+
+		var usersRef = this.firestore.collection("users");
+		var query = usersRef.where('teacherEmail', '==', teacherEmail).where("role", "array-contains", "student").orderBy('averageScore', 'desc');
+
+		return new Promise((resolve, reject) => {
+			query.get()
+				.then((querySnapshot) => {
+					let data = querySnapshot.docs.map(doc => {
+						return {
+							id: doc.id,
+							...doc.data()
+						};
+					});
+					resolve(data);
+				})
+				.catch((error) => {
+					console.log("Error getting documents: ", error);
+					reject(error);
+				});
+		});
+	};
+
+	getAllTeachers = () => {
+		if (!firebase.apps.length) {
+			return false;
+		}
+
+		var usersRef = this.firestore.collection("users");
+		var query = usersRef.where("role", "array-contains", "teacher").orderBy('name', 'asc');
+
+		return new Promise((resolve, reject) => {
+			query.get()
+				.then((querySnapshot) => {
 					let data = querySnapshot.docs.map(doc => {
 						return {
 							id: doc.id,
@@ -230,13 +283,8 @@ class FirebaseService {
 		var query = exercisesRef.orderBy('order');
 
 		return new Promise((resolve, reject) => {
-
 			exercisesRef.get()
 				.then((querySnapshot) => {
-					querySnapshot.forEach((doc) => {
-						// doc.data() is never undefined for query doc snapshots
-						console.log(doc.id, " => ", doc.data());
-					});
 					let data = querySnapshot.docs.map(doc => {
 						doc.data();
 					});
@@ -263,7 +311,9 @@ class FirebaseService {
 				email: user.data.email,
 				role: user.role,
 				teacherEmail: user.data.teacherEmail ? user.data.teacherEmail.toLowerCase() : '',
-				currentExercise: user.currentExercise != undefined ? user.currentExercise : null
+				currentExercise: user.currentExercise != undefined ? user.currentExercise : null,
+				teacherName: user.data.teacherName != null ? user.data.teacherName : '',
+				level: user.data.level != null ? user.data.level : 1,
 				// TODOXD continue here
 			}, { merge: true })
 			.then(() => {
@@ -583,20 +633,25 @@ class FirebaseService {
 				.where('studentId', '==', data[i].id)
 				.get();
 
-
 			let exerciseData = querySnapshot2.docs.map(doc => {
 				return {
 					id: doc.id,
 					...doc.data()
 				};
 			});;
-			console.log(exerciseData);
+
+			if (data[i].id == 'student2@mail.com')
+				console.log(exerciseData.length);
+
 			if (exerciseData.length > 0) {
-				var res = exerciseData.reduce((a, b) => { return (a.order > b.order) ? a : b; });
-				var completed = res.order;
+				let res = exerciseData.reduce((a, b) => { return (a.order > b.order) ? a : b; });
+				console.log('res 592 calculateLessonCompletedForAllStudents firebaseService.js: ', res);
+				let completed = res.order;
 				if (res.completed != true) completed = completed - 1;
-				console.log('firebaseService.js ', completed);
+				if (isNaN(completed) || completed == null) completed = 0;
 				this.firestore.collection('users').doc(data[i].id).update({ completed: completed });
+			} else {
+				this.firestore.collection('users').doc(data[i].id).update({ completed: 0 });
 			}
 		}
 

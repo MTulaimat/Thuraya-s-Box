@@ -44,8 +44,12 @@ export const createUserSettingsFirebase = authUser => async (dispatch, getState)
 			displayName: authUser.displayName,
 			email: authUser.email,
 			teacherEmail: authUser.teacherEmail,
+			teacherName: authUser.teacherName,
 			currentExercise: authUser.currentExercise,
-			settings: { ...fuseDefaultSettings }
+			settings: { ...fuseDefaultSettings },
+			level: authUser.level,
+			completed: authUser.completed,
+			averageScore: authUser.averageScore,
 		}
 	});
 

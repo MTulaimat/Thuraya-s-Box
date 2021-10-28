@@ -25,11 +25,34 @@
 	display: block;
 }
 
-tbody tr:hover {
+table.m7-admin-table tbody tr:hover {
 	background-color: rgb(238, 238, 238);
 	cursor: pointer;
 }
 
-tr {
+table.m7-admin-table tr {
 	user-select: none;
+}
+
+table.m7-admin-table,
+table.m7-admin-table tr td {
+	/* border: 1px solid red; */
+	border-collapse: collapse;
+}
+table.m7-admin-table tbody {
+	display: block;
+	height: 500px;
+	width: 100% !important;
+	min-width: 815px !important;
+	overflow: auto;
+}
+table.m7-admin-table thead,
+table.m7-admin-table tbody tr {
+	display: table;
+	width: 100%;
+	min-width: 815px !important;
+	table-layout: fixed; /* even columns width , fix width of table too*/
+}
+table.m7-admin-table thead {
+	width: calc(100% - 1em); /* scrollbar is average 1em/16px width, remove it from thead width */
 }

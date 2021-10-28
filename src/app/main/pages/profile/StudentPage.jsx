@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 import ChartWidget from '../custom/ChartWidget';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { IconButton, Icon } from '@material-ui/core';
 import { Link, useLocation } from 'react-router-dom';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -12,6 +12,10 @@ import Typography from '@material-ui/core/Typography';
 import { useEffect, useState } from 'react';
 import './StudentPage.css';
 import { useUrlSearchParams } from 'use-url-search-params';
+import FirebaseService from 'app/services/firebaseService';
+// import { doc, setDoc } from 'firebase/firestore';
+import TextField from '@material-ui/core/TextField';
+import { showMessage } from 'app/store/fuse/messageSlice';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -124,16 +128,26 @@ const modalStyle = {
 
 function ProfilePage() {
 	const [modalOpen, setModalOpen] = useState(false);
-	const [modalExerciseName, setModalExerciseName] = useState('false');
+	const [modalExerciseIndex, setModalExerciseIndex] = useState(0);
 	const handleOpen = () => setModalOpen(true);
 	const handleClose = () => setModalOpen(false);
 	const [params, setParams] = useUrlSearchParams();
 	const location = useLocation();
-
+	const dispatch = useDispatch();
 	const classes = useStyles();
 	const user = useSelector(({ auth }) => auth.user);
+	const [studentData, setStudentData] = useState({});
+	const [exercisesData, setExercisesData] = useState([]);
+	const [level, setLevel] = useState('1');
 
-	const categories = ['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6'];
+	const categories = [
+		'Letter Picker',
+		'Image Coloring',
+		'Letter Drawing',
+		'Letter Dragging',
+		'Letter Ordering',
+		'Word Drawing'
+	];
 	const widgetData1 = [70, 80, 35, 95, 70, 80];
 	const widgetData2 = [60, 30, 25, 85, 20, 40];
 	const widgetData3 = [20, 120, 45, 35, 80, 30];
@@ -171,9 +185,136 @@ function ProfilePage() {
 		}
 	];
 
+	let allExercises = [
+		{
+			order: 1,
+			id: 'arabic-letter-picker-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Letter Picker'
+		},
+		{
+			order: 2,
+			id: 'arabic-image-colorer-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Image Coloring'
+		},
+		{
+			order: 3,
+			id: 'arabic-letter-drawer-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Letter Drawing'
+		},
+		{
+			id: 'arabic-letter-dragger-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 4,
+			title: 'Letter Dragging'
+		},
+		{
+			id: 'arabic-letter-orderer-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 5,
+			title: 'Letter Ordering'
+		},
+		{
+			id: 'arabic-word-drawer-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 6,
+			title: 'Word Drawing'
+		}
+	];
+
 	useEffect(() => {
 		window.scrollTo(0, 0);
 	}, [location]);
+
+	useEffect(async () => {
+		if (params.id == null && user.role.includes('student')) {
+			console.log(user);
+			let temp = {
+				id: user.uid,
+				role: user.role,
+				name: user.name,
+				displayName: user.displayName,
+
+				email: user.data.email,
+				currentExercise: user.data.currentExercise,
+				completed: user.data.completed,
+				teacherName: user.data.teacherName,
+				level: user.data.level,
+				averageScore: user.data.averageScore
+			};
+
+			setStudentData(temp);
+			setLevel(user.data.level);
+
+			let querySnapshot = await FirebaseService.firestore
+				.collection('exerciseData')
+				.where('studentId', '==', user.uid)
+				.orderBy('order', 'asc')
+				.get();
+
+			let data = querySnapshot.docs.map(doc => {
+				return {
+					id: doc.id,
+					...doc.data()
+				};
+			});
+			setExercisesData(data);
+		} else if (params.id != null) {
+			FirebaseService.firestore
+				.collection('users')
+				.doc(params.id)
+				.get()
+				.then(doc => {
+					setStudentData({ id: doc.id, ...doc.data() });
+					setLevel(doc.data().level);
+				})
+				.catch(error => {
+					console.log('Error getting data: ', error);
+				});
+
+			let querySnapshot = await FirebaseService.firestore
+				.collection('exerciseData')
+				.where('studentId', '==', params.id)
+				.orderBy('order', 'asc')
+				.get();
+
+			let data = querySnapshot.docs.map(doc => {
+				return {
+					id: doc.id,
+					...doc.data()
+				};
+			});
+			setExercisesData(data);
+		} else {
+			// <Redirect to="/pages/errors/error-404" />;
+			console.error('Should show a message and redirect to 404');
+			// TODO $$ Redirect to 404 if id is wrong (later)
+		}
+	}, []);
+
+	let levelChanged = val => {
+		if (typeof val === 'string' && (val == '1' || val == '2' || val == '3' || val == '4' || val == '5')) {
+			setLevel(val);
+
+			console.log('studentData ', studentData);
+			FirebaseService.firestore
+				.collection('users')
+				.doc(studentData.id)
+				.update({ level: parseInt(val) })
+				.then(res => {
+					console.log('Updated level on Firestore: ', res);
+					dispatch(showMessage({ message: "Student's Level was Updated!" }));
+				});
+		}
+	};
 
 	return (
 		<div className={classes.root}>
@@ -201,21 +342,54 @@ function ProfilePage() {
 					</div>
 					<div>
 						<div className="text-center px-14">
-							<h2 className="text-3xl font-bold pt-14">{params.n == null ? user.name : params.n}</h2>
+							<h2 className="text-3xl font-bold pt-14">{studentData.name}</h2>
 							{/* <p className="text-gray-400 mt-2">{user.data.email}</p> */}
-							<p className="text-gray-400 mt-2">student@mail.com</p>
+							<p className="text-gray-400 mt-2">{studentData.email}</p>
 							<div className={classes.smallerInfo}>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Teacher's Name:</div>
-									<div>Fatima Ahmad{user.data.teacherName}</div>
+									<div>
+										{studentData.teacherName != null ? studentData.teacherName : 'Fatima Ahmad'}
+									</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Active:</div>
-									<div>2021-10-13{user.data.lastOnline}</div>
+									<div>
+										{studentData.lastActive}2021-10-24{/*teacher.data.lastOnline*/}
+									</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Date Joined:</div>
-									<div>2021-10-05{user.data.dateJoined}</div>
+									<div>
+										{studentData.dateJoined}2021-10-19{/*teacher.data.dateJoined*/}
+									</div>
+								</div>
+
+								<div className={classes.smallerInfoRow} style={{ paddingTop: '10px' }}>
+									<div className="font-semibold">Level:</div>
+									<div>
+										{user.role.includes('teacher') || user.role.includes('admin') ? (
+											<>
+												<select
+													name="level"
+													id="level"
+													value={level}
+													style={{ border: 'solid 1px', padding: '1px 16px' }}
+													onChange={e => {
+														levelChanged(e.target.value);
+													}}
+												>
+													<option value="1">1</option>
+													<option value="2">2</option>
+													<option value="3">3</option>
+													<option value="4">4</option>
+													<option value="5">5</option>
+												</select>
+											</>
+										) : (
+											user.data.level
+										)}
+									</div>
 								</div>
 							</div>
 						</div>
@@ -229,7 +403,8 @@ function ProfilePage() {
 							<div className="border"></div>
 							<div className="text-center w-1/2 p-10 hover:bg-gray-100 cursor-pointer select-none">
 								<p>
-									<span className="font-semibold">Lesson: </span> 6
+									<span className="font-semibold">Completed: </span>
+									{studentData.completed != null ? studentData.completed : 0}
 								</p>
 							</div>
 						</div>
@@ -280,7 +455,7 @@ function ProfilePage() {
 									<p className="font-semibold text-lg text-blueGray-700">Data</p>
 								</div>
 								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
-									<Button
+									{/* <Button
 										variant="outlined"
 										style={{
 											color: '#F3B25F',
@@ -292,13 +467,13 @@ function ProfilePage() {
 										}}
 									>
 										Refresh
-									</Button>
+									</Button> */}
 								</div>
 							</div>
 						</div>
 
 						<div className="block w-full overflow-x-auto" style={{ paddingBottom: '15px' }}>
-							<table className="items-center bg-transparent w-full border-collapse">
+							<table className="items-center bg-transparent w-full border-collapse font-mono">
 								<thead>
 									<tr>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
@@ -316,22 +491,22 @@ function ProfilePage() {
 									</tr>
 								</thead>
 								<tbody>
-									{lessonsArr.map((item, index) => (
+									{exercisesData.map((item, index) => (
 										<tr
-											key={item.exerciseName}
+											key={item.order}
 											onClick={() => {
-												setModalExerciseName(item.exerciseName);
+												setModalExerciseIndex(index);
 												setModalOpen(!modalOpen);
 											}}
 										>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
-												{item.lessonName}
+												Arabic
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
-												{item.exerciseName}
+												{`${item.order}- ` + allExercises[item.order - 1].title}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
-												{item.completed}
+												{item.completed ? '✅' : '❌'}
 											</td>
 											<td
 												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
@@ -339,7 +514,7 @@ function ProfilePage() {
 													fontSize: '16.5px'
 												}}
 											>
-												{item.dateCompleted}
+												2021-10-24
 											</td>
 										</tr>
 									))}
@@ -379,29 +554,37 @@ function ProfilePage() {
 									className="font-semibold"
 									style={{ marginBottom: '9px', fontSize: 24 }}
 								>
-									{modalExerciseName}
+									{`${modalExerciseIndex + 1}- ` + allExercises[modalExerciseIndex].title}
 								</div>
 								<div id="transition-modal-description">
 									<div className={classes.smallerInfo} style={{ padding: '10px' }}>
 										<div className={classes.modalInfoRow}>
-											<div className="font-medium">Score:</div>
-											<div>50 points</div>
-										</div>
-										<div className={classes.modalInfoRow}>
-											<div className="font-medium">Time to Finish:</div>
-											<div>40 seconds</div>
-										</div>
-										<div className={classes.modalInfoRow}>
 											<div className="font-medium">Attempts:</div>
-											<div>5 attempts</div>
+											<div>{exercisesData[modalExerciseIndex].attempts}</div>
 										</div>
 										<div className={classes.modalInfoRow}>
 											<div className="font-medium">First Attempted:</div>
-											<div>2021-10-14</div>
+											<div>2021-10-24</div>
 										</div>
-										<div className={classes.smallerInfoRow}>
+										<div className={classes.modalInfoRow}>
 											<div className="font-medium">Mistakes:</div>
-											<div>7 mistakes</div>
+											<div>{exercisesData[modalExerciseIndex].mistakes}</div>
+										</div>
+										<div className={classes.modalInfoRow}>
+											<div className="font-medium">Score:</div>
+											<div>
+												{exercisesData[modalExerciseIndex].completed === true
+													? exercisesData[modalExerciseIndex].score
+													: '-'}
+											</div>
+										</div>
+										<div className={classes.modalInfoRow}>
+											<div className="font-medium">Time to Finish:</div>
+											<div>
+												{exercisesData[modalExerciseIndex].completed === true
+													? exercisesData[modalExerciseIndex].time + ' seconds'
+													: '-'}
+											</div>
 										</div>
 									</div>
 								</div>

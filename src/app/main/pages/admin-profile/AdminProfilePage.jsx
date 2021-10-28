@@ -13,6 +13,9 @@ import { useState, useEffect } from 'react';
 import './AdminProfilePage.css';
 import FirebaseService from 'app/services/firebaseService';
 import { forEach } from 'lodash';
+import firebase from 'firebase/app';
+import { doc, setDoc } from 'firebase/firestore';
+import { random } from 'lodash';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -97,151 +100,261 @@ function AdminProfilePage() {
 	const user = useSelector(({ auth }) => auth.user);
 	const history = useHistory();
 
-	const [teacherData, setTeacherData] = useState([]);
+	const [teachersData, setTeachersData] = useState([]);
+	const [studentsData, setStudentsData] = useState([]);
 	const [avgExercise, setAvgExercise] = useState([]);
+	const [refreshToggler, setRefreshToggler] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	// let createFirestoreData = () => {
 	//   return FirebaseService.createFakeData();
 	// };
 
-	let calculateLessonCompletedForAllStudents = () => {
-		return FirebaseService.calculateLessonCompletedForAllStudents();
+	let calculateAverageScoreForAllStudents = async () => {
+		// get all students
+		setLoading(true);
+
+		const query1 = await FirebaseService.firestore
+			.collection('users')
+			.where('role', 'array-contains', 'student')
+			.get();
+
+		for (const doc of query1.docs) {
+			// for each student, get their exercise data (only done exercises)
+			const query2 = await FirebaseService.firestore
+				.collection('exerciseData')
+				.where('studentId', '==', doc.id)
+				.where('completed', '==', true)
+				.get();
+
+			let count = query2.docs.length;
+			let sum = 0;
+
+			if (count > 0) {
+				for (const doc2 of query2.docs) {
+					// go over the exercise data of each student and calculate a sum
+					sum = sum + doc2.data().score;
+				}
+
+				await doc.ref.update({
+					averageScore: Math.round(sum / count)
+				});
+			} else {
+				await doc.ref.update({
+					averageScore: 0
+				});
+			}
+		}
+		setLoading(false);
+		setRefreshToggler(!refreshToggler);
 	};
 
-	const categories = ['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6'];
+	let calculateAverageScoreForAllTeachers = async () => {
+		// get all teachers
+		setLoading(true);
+
+		FirebaseService.calculateLessonCompletedForAllStudents();
+		const query1 = await FirebaseService.firestore
+			.collection('users')
+			.where('role', 'array-contains', 'teacher')
+			.get();
+
+		for (const doc of query1.docs) {
+			// for each teacher, get all their students
+			const query2 = await FirebaseService.firestore
+				.collection('users')
+				.where('teacherEmail', '==', doc.data().email)
+				.get();
+
+			let count = query2.docs.length;
+			let sum = 0;
+
+			// sum the averages of all the students
+			for (const doc2 of query2.docs) {
+				sum = sum + doc2.data().averageScore;
+			}
+
+			// update the teacher's data with the average scores
+			await doc.ref.update({
+				averageScore: Math.round(sum / count)
+			});
+		}
+		setLoading(false);
+		setRefreshToggler(!refreshToggler);
+	};
+
+	let allExercises = [
+		{
+			order: 1,
+			id: 'arabic-letter-picker-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Letter Picker'
+		},
+		{
+			order: 2,
+			id: 'arabic-image-colorer-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Image Coloring'
+		},
+		{
+			order: 3,
+			id: 'arabic-letter-drawer-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Letter Drawing'
+		},
+		{
+			id: 'arabic-letter-dragger-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 4,
+			title: 'Letter Dragging'
+		},
+		{
+			id: 'arabic-letter-orderer-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 5,
+			title: 'Letter Ordering'
+		},
+		{
+			id: 'arabic-word-drawer-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 6,
+			title: 'Word Drawing'
+		}
+	];
+	let createExerciseDataForStudent = async uid => {
+		if (!firebase.apps.length) {
+			return false;
+		}
+
+		let sampleExercise = [
+			// Sample 1 (3.5/6)
+			{
+				completed: true
+			},
+			{
+				completed: true
+			},
+			{
+				completed: true
+			},
+			{
+				completed: false
+			}
+		];
+
+		let pickedExercises = _.cloneDeep(sampleExercise);
+
+		for (let j = 0; j < pickedExercises.length; j++) {
+			pickedExercises[j].level = 1;
+			pickedExercises[j].order = j + 1;
+			pickedExercises[j].lesson = 'Arabic';
+			pickedExercises[j].title = allExercises[j].title;
+			pickedExercises[j].exerciseId = allExercises[j].id;
+			pickedExercises[j].studentId = uid;
+			pickedExercises[j].attempts = random(1, 3);
+			pickedExercises[j].mistakes = random(0, 3);
+
+			if (pickedExercises[j].completed === true) {
+				pickedExercises[j].time = random(15, 30);
+				pickedExercises[j].score = 100 - 2 * pickedExercises[j].mistakes - pickedExercises[j].time;
+			}
+
+			setTimeout(() => {
+				FirebaseService.firestore
+					.collection('exerciseData')
+					.doc(uid + '-' + pickedExercises[j].exerciseId)
+					.set(pickedExercises[j])
+					.then(() => {
+						console.log('exerciseData document successfully written!');
+					});
+			}, 0);
+		}
+	};
+
+	let addTeacherNamesToAllStudents = async () => {
+		if (!firebase.apps.length) {
+			return false;
+		}
+
+		// get literally all students:
+		var querySnapshot = await FirebaseService.firestore
+			.collection('users')
+			.where('role', 'array-contains', 'student')
+			.get();
+
+		let data = querySnapshot.docs.map(doc => {
+			return {
+				id: doc.id,
+				...doc.data()
+			};
+		});
+
+		let teacherEmailsToNames = {
+			'teacher@mail.com': 'Fatima Ahmad',
+			'osamaqasim@mail.com': 'Osama Qasim',
+			'anasnakawa@mail.com': 'Anas Nakawa',
+			'samisaeed@mail.com': 'Sami Saeed',
+			'amiramohamad@mail.com': 'Amira Mohamad'
+		};
+
+		for (let i = 0; i < data.length; i++) {
+			if (data[i].teacherEmail == null || data[i].teacherEmail == '') continue;
+			// add a field called teacherName to every student based on their teacherEmail
+			if (teacherEmailsToNames[data[i].teacherEmail] != null)
+				FirebaseService.firestore
+					.collection('users')
+					.doc(data[i].id)
+					.update({
+						teacherName: teacherEmailsToNames[data[i].teacherEmail]
+					})
+					.then(() => {
+						console.log('Document successfully updated!');
+					})
+					.catch(error => {
+						// The document probably doesn't exist.
+						console.error('Error updating document: ', error);
+					});
+		}
+	};
+
+	const categories = [
+		'Letter Picker',
+		'Image Coloring',
+		'Letter Drawing',
+		'Letter Dragging',
+		'Letter Ordering',
+		'Word Drawing'
+	];
 
 	const widgetData1 = [70, 80, 35, 95, 70, 80];
 	const widgetData2 = [4, 5, 3, 8, 7, 9];
 	const widgetData3 = [20, 120, 45, 35, 80, 30];
 
-	const teachersArr = [
-		{
-			key: 1,
-			studentName: 'Fatima Ahmad',
-			lessonName: 'Arabic',
-			exerciseName: 'Exercise 3',
-			avgScore: 71
-		},
-		{
-			key: 2,
-			studentName: 'Osama Qasim',
-			lessonName: 'Arabic',
-			exerciseName: 'Exercise 2',
-			avgScore: 79
-		},
-		{
-			key: 3,
-			studentName: 'Anas Nakawa',
-			lessonName: 'Arabic',
-			exerciseName: 'Exercise 5',
-			avgScore: 87
-		},
-		{
-			key: 4,
-			studentName: 'Amira Mohamad',
-			lessonName: 'Arabic',
-			exerciseName: 'Exercise 4',
-			avgScore: 96
-		},
-		{
-			key: 5,
-			studentName: 'Sami Saeed',
-			lessonName: 'Arabic',
-			exerciseName: 'Exercise 4',
-			avgScore: 84
-		}
-	];
-
-	let studentsArr = [
-		{
-			key: 1,
-			studentName: 'Yazan Qawasmeh',
-			teacherName: 'Anas Nakawa',
-			exerciseName: '12',
-			avgScore: 91
-		},
-		{
-			key: 2,
-			studentName: 'Yousef Yahia',
-			teacherName: 'Fatima Ahmad',
-			exerciseName: '11',
-			avgScore: 82
-		},
-		{
-			key: 3,
-			studentName: 'Saad Motamad',
-			teacherName: 'Sami Saeed',
-			exerciseName: '9',
-			avgScore: 79
-		},
-		{
-			key: 4,
-			studentName: 'Ahmad Othman',
-			teacherName: 'Sami Saeed',
-			exerciseName: '12',
-			avgScore: 71
-		},
-		{
-			key: 5,
-			studentName: 'Abdrahman AlShomaly',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '12',
-			avgScore: 96
-		},
-		{
-			key: 6,
-			studentName: 'Basel Tabakha',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '11',
-			avgScore: 87
-		},
-		{
-			key: 7,
-			studentName: 'Saeed Sharabati',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '10',
-			avgScore: 83
-		},
-		{
-			key: 8,
-			studentName: 'Salem Khalid',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '9',
-			avgScore: 72
-		},
-		{
-			key: 9,
-			studentName: 'Ahmad Waleed',
-			teacherName: 'Amira Mohamad',
-			exerciseName: '12',
-			avgScore: 71
-		}
-	];
-
-	let sortedStudentsArr = studentsArr.sort((a, b) => {
-		return b.avgScore - a.avgScore;
-	});
-
-	let handleOnClickTeacher = name => {
-		history.push('/pages/teacher?n=' + name.replace(' ', '+'));
+	let handleOnClickTeacher = id => {
+		history.push('/pages/teacher?id=' + id);
 	};
 
-	let handleOnClickStudent = name => {
-		history.push('/pages/student?n=' + name.replace(' ', '+'));
+	let handleOnClickStudent = id => {
+		history.push('/pages/student?id=' + id);
 	};
 
 	useEffect(() => {
-		FirebaseService.getAllTeacher().then(data => {
-			setTeacherData(data);
-
-			for (let i = 0; i < data.length; i++) {
-				FirebaseService.getAvgExerciseForTeacher(data).then(data => {
-					console.log('getAvgExerciseForTeacher: ', data);
-					setAvgExercise([...data]);
-				});
-			}
+		FirebaseService.getAllTeachers().then(data => {
+			setTeachersData(data);
+			FirebaseService.getAvgExerciseForTeacher(data).then(data => {
+				setAvgExercise([...data]);
+			});
 		});
-	}, []);
+		FirebaseService.getAllStudents().then(data => {
+			setStudentsData(data);
+		});
+	}, [refreshToggler]);
 
 	return (
 		<div className={classes.root}>
@@ -301,17 +414,50 @@ function AdminProfilePage() {
 				</div>
 			</div>
 			{/* <div style={{ display: 'flex', marginTop: 20, width: '50%', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'column', textAlign: 'start' }}></div> */}
+
+			<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '10px' }}>
+				{/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-10 px-20 rounded" onClick={() => createFirestoreData()}>
+					Create Firestore Data
+				</button> */}
+				{/* <button
+					className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-10 px-20 rounded"
+					onClick={() => calculateLessonCompletedForAllStudents()}
+				>
+					Calculate num of completed lessons for all students
+				</button> */}
+				{/* <button
+					className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-10 px-20 rounded"
+					onClick={() => calculateAverageScoreForAllStudents()}
+				>
+					Calculate average score for all students
+				</button>
+				<button
+					className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-10 px-20 rounded"
+					onClick={() => calculateAverageScoreForAllTeachers()}
+				>
+					Calculate average score for all teachers
+				</button> */}
+				{/* <button
+					className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-10 px-20 rounded"
+					onClick={() => createExerciseDataForStudent('hCXvl0ARHFOz374VEH8Q5rLPCGB3')}
+				>
+					Create Exercise Data For student@mail.com
+				</button> */}
+				{/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-10 px-20 rounded" onClick={() => addTeacherNamesToAllStudents()}>
+					Add Teacher Names to All Students
+				</button> */}
+			</div>
 			<br />
 			<br />
 			<p className={classes.title}>Analytics</p>
 			<div className={classes.widgetContainer}>
 				<div className="numberBoxesContainer">
 					<div className="numberBox">
-						<span>100</span>
+						<span>{studentsData?.length}</span>
 						Students
 					</div>
 					<div className="numberBox">
-						<span>5</span>
+						<span>{teachersData?.length}</span>
 						Teachers
 					</div>
 				</div>
@@ -362,6 +508,7 @@ function AdminProfilePage() {
 											padding: '0px 6px',
 											borderRadius: '5px'
 										}}
+										onClick={() => calculateAverageScoreForAllTeachers()}
 									>
 										Refresh
 									</Button>
@@ -373,6 +520,9 @@ function AdminProfilePage() {
 							<table className="items-center bg-transparent w-full border-collapse">
 								<thead>
 									<tr>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center">
+											#
+										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Name
 										</th>
@@ -380,16 +530,22 @@ function AdminProfilePage() {
 											Current Lesson
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Avg. Exercise Completed
+											Avg. Exercise
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Student Average
+											Average
 										</th>
 									</tr>
 								</thead>
 								<tbody>
-									{teacherData.map((item, index) => (
-										<tr key={item.id} onClick={() => handleOnClickTeacher(item.name)}>
+									{teachersData.map((item, index) => (
+										<tr key={item.id} onClick={() => handleOnClickTeacher(item.id)}>
+											<td
+												className="border-t-0 align-middle border-l-0 border-r-0 whitespace-nowrap text-center text-blueGray-700"
+												style={{ width: '50px' }}
+											>
+												{index + 1}
+											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
 												{item.name}
 											</td>
@@ -397,12 +553,14 @@ function AdminProfilePage() {
 												Arabic
 											</td>
 											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
-												{!isNaN(avgExercise[index]) ? Math.round(avgExercise[index]) : ''}
+												{!isNaN(avgExercise[index]) ? Math.round(avgExercise[index]) : '-'}
 											</td>
 											<td
 												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
 												style={{ fontSize: '17px' }}
-											></td>
+											>
+												{!isNaN(item.averageScore) ? item.averageScore : '-'}
+											</td>
 										</tr>
 									))}
 								</tbody>
@@ -436,6 +594,7 @@ function AdminProfilePage() {
 											padding: '0px 6px',
 											borderRadius: '5px'
 										}}
+										onClick={() => calculateAverageScoreForAllStudents()}
 									>
 										Refresh
 									</Button>
@@ -444,9 +603,15 @@ function AdminProfilePage() {
 						</div>
 
 						<div className="block w-full overflow-x-auto" style={{ paddingBottom: '15px' }}>
-							<table className="items-center bg-transparent w-full border-collapse">
+							<table className="m7-admin-table items-center bg-transparent w-full border-collapse">
 								<thead>
 									<tr>
+										<th
+											className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-center"
+											style={{ width: '50px' }}
+										>
+											#
+										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Name
 										</th>
@@ -457,27 +622,35 @@ function AdminProfilePage() {
 											Exercise Completed
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Student Average
+											Average
 										</th>
 									</tr>
 								</thead>
 								<tbody>
-									{sortedStudentsArr.map((item, index) => (
-										<tr key={item.key} onClick={() => handleOnClickStudent(item.studentName)}>
+									{studentsData.map((item, index) => (
+										<tr key={item.id} onClick={() => handleOnClickStudent(item.id)}>
+											<td
+												className="border-t-0 align-middle border-l-0 border-r-0 whitespace-nowrap text-center text-blueGray-700"
+												style={{ width: '50px' }}
+											>
+												{index + 1}
+											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
-												{item.studentName}
+												{item.name}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
 												Arabic
 											</td>
-											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
-												{item.exerciseName}
+											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap font-mono">
+												{item.completed > 0
+													? `${item.completed}- ` + allExercises[item.completed].title
+													: '-'}
 											</td>
 											<td
 												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
 												style={{ fontSize: '17px' }}
 											>
-												{item.avgScore} &nbsp;
+												{!isNaN(item.averageScore) ? item.averageScore : '-'} &nbsp;
 												{index == 0 ? '🥇' : ''}
 												{index == 1 ? '🥈' : ''}
 												{index == 2 ? '🥉' : ''}
@@ -490,15 +663,37 @@ function AdminProfilePage() {
 					</div>
 				</div>
 			</section>
-
-			<div>
-				<br />
-				<br />
-				{/* <button onClick={() => createFirestoreData()}>Create Firestore Data</button> */}
-				<button onClick={() => calculateLessonCompletedForAllStudents()}>
-					Recalculate Lesson Completed For All Students
-				</button>
-			</div>
+			{loading && (
+				<div style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: '999' }}>
+					<button
+						type="button"
+						className="inline-flex items-center px-12 py-12 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-blue-600 hover:bg-rose-500 focus:border-rose-700 active:bg-rose-700 transition ease-in-out duration-150 cursor-default"
+						disabled=""
+					>
+						<svg
+							className="animate-spin -ml-1 mr-8 h-24 w-24 text-white"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<circle
+								className="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								strokeWidth="4"
+							></circle>
+							<path
+								className="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						Loading...
+					</button>
+				</div>
+			)}
 		</div>
 	);
 }

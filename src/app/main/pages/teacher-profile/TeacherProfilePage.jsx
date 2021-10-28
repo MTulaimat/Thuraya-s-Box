@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import { useState, useEffect } from 'react';
 import { useUrlSearchParams } from 'use-url-search-params';
 import './TeacherPage.css';
+import FirebaseService from 'app/services/firebaseService';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -107,15 +108,151 @@ function TeacherProfilePage() {
 	const user = useSelector(({ auth }) => auth.user);
 	const history = useHistory();
 	const location = useLocation();
-	const categories = ['Exercise 1', 'Exercise 2', 'Exercise 3', 'Exercise 4', 'Exercise 5', 'Exercise 6'];
+	const [teacherData, setTeacherData] = useState({});
+	const [studentsData, setStudentsData] = useState([]);
+	const [refreshToggler, setRefreshToggler] = useState(false);
+	const [loading, setLoading] = useState(false);
+
+	const categories = [
+		'Letter Picker',
+		'Image Coloring',
+		'Letter Drawing',
+		'Letter Dragging',
+		'Letter Ordering',
+		'Word Drawing'
+	];
+	let allExercises = [
+		{
+			order: 1,
+			id: 'arabic-letter-picker-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Letter Picker'
+		},
+		{
+			order: 2,
+			id: 'arabic-image-colorer-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Image Coloring'
+		},
+		{
+			order: 3,
+			id: 'arabic-letter-drawer-1',
+			lesson: 'Arabic',
+			level: 1,
+			title: 'Letter Drawing'
+		},
+		{
+			id: 'arabic-letter-dragger-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 4,
+			title: 'Letter Dragging'
+		},
+		{
+			id: 'arabic-letter-orderer-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 5,
+			title: 'Letter Ordering'
+		},
+		{
+			id: 'arabic-word-drawer-1',
+			lesson: 'Arabic',
+			level: 1,
+			order: 6,
+			title: 'Word Drawing'
+		}
+	];
 
 	const widgetData1 = [70, 80, 35, 95, 70, 80];
 	const widgetData2 = [4, 5, 3, 8, 7, 9];
 	const widgetData3 = [20, 120, 45, 35, 80, 30];
 
+	let calculateAverageScoreForAllStudents = async () => {
+		// get all students
+		setLoading(true);
+
+		const query1 = await FirebaseService.firestore
+			.collection('users')
+			.where('role', 'array-contains', 'student')
+			.get();
+
+		for (const doc of query1.docs) {
+			// for each student, get their exercise data (only done exercises)
+			const query2 = await FirebaseService.firestore
+				.collection('exerciseData')
+				.where('studentId', '==', doc.id)
+				.where('completed', '==', true)
+				.get();
+
+			let count = query2.docs.length;
+			let sum = 0;
+
+			if (count > 0) {
+				for (const doc2 of query2.docs) {
+					// go over the exercise data of each student and calculate a sum
+					sum = sum + doc2.data().score;
+				}
+
+				await doc.ref.update({
+					averageScore: Math.round(sum / count)
+				});
+			} else {
+				await doc.ref.update({
+					averageScore: 0
+				});
+			}
+		}
+		setLoading(false);
+		setRefreshToggler(!refreshToggler);
+	};
+
 	useEffect(() => {
 		window.scrollTo(0, 0);
 	}, [location]);
+
+	useEffect(async () => {
+		if (params.id == null && user.role.includes('teacher')) {
+			let temp = {
+				id: user.uid,
+				role: user.role,
+				name: user.name,
+				displayName: user.displayName,
+
+				email: user.data.email,
+				currentExercise: user.data.currentExercise,
+				averageScore: user.data.averageScore
+			};
+
+			setTeacherData(temp);
+
+			console.log('dadsafASFsa', user);
+			FirebaseService.getAllStudentsForTeacher(user.uid).then(data => {
+				setStudentsData(data);
+			});
+		} else if (params.id != null) {
+			FirebaseService.firestore
+				.collection('users')
+				.doc(params.id)
+				.get()
+				.then(doc => {
+					setTeacherData({ id: doc.id, ...doc.data() });
+				})
+				.catch(error => {
+					console.log('Error getting data: ', error);
+				});
+
+			FirebaseService.getAllStudentsForTeacher(params.id).then(data => {
+				setStudentsData(data);
+			});
+		} else {
+			// <Redirect to="/pages/errors/error-404" />;
+			console.error('Should show a message and redirect to 404');
+			// TODO $$ Redirect to 404 if id is wrong (later)
+		}
+	}, [refreshToggler]);
 
 	const studentsArr = [
 		{
@@ -155,10 +292,10 @@ function TeacherProfilePage() {
 		}
 	];
 
-	let handleOnClick = name => {
+	let handleOnClick = id => {
 		// router.transitionTo();
 
-		history.push('/pages/student?n=' + name.replace(' ', '+'));
+		history.push('/pages/student?id=' + id);
 	};
 
 	return (
@@ -187,15 +324,12 @@ function TeacherProfilePage() {
 					</div>
 					<div>
 						<div className="text-center px-14">
-							<h2 className="text-3xl font-bold pt-14">{params.n == null ? user.name : params.n}</h2>
-							<p className="text-gray-400 mt-2">
-								{/* {params.e == null ? user.data.email : params.e} */}
-								teacher@mail.com
-							</p>
+							<h2 className="text-3xl font-bold pt-14">{teacherData.name}</h2>
+							<p className="text-gray-400 mt-2">{teacherData.email}</p>
 							<div className={classes.smallerInfo}>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Number of Students:</div>
-									<div>20{user.data.teacherName}</div>
+									<div>{studentsData.length}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Active:</div>
@@ -273,6 +407,7 @@ function TeacherProfilePage() {
 											padding: '0px 6px',
 											borderRadius: '5px'
 										}}
+										onClick={() => calculateAverageScoreForAllStudents()}
 									>
 										Refresh
 									</Button>
@@ -284,6 +419,9 @@ function TeacherProfilePage() {
 							<table className="items-center bg-transparent w-full border-collapse">
 								<thead>
 									<tr>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											#
+										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Name
 										</th>
@@ -299,22 +437,27 @@ function TeacherProfilePage() {
 									</tr>
 								</thead>
 								<tbody>
-									{studentsArr.map((item, index) => (
-										<tr key={item.key} onClick={() => handleOnClick(item.studentName)}>
+									{studentsData.map((item, index) => (
+										<tr key={item.id} onClick={() => handleOnClick(item.id)}>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
-												{item.studentName}
+												{index + 1}
+											</td>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
+												{item.name}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
-												{item.lessonName}
+												Arabic
 											</td>
-											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap">
-												{item.exerciseName}
+											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap font-mono">
+												{item.completed > 0
+													? `${item.completed}- ` + allExercises[item.completed].title
+													: '-'}
 											</td>
 											<td
 												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap font-mono"
 												style={{ fontSize: '17px' }}
 											>
-												{item.avgScore} &nbsp;
+												{!isNaN(item.averageScore) ? item.averageScore : '-'} &nbsp;
 												{index == 0 ? '🥇' : ''}
 												{index == 1 ? '🥈' : ''}
 												{index == 2 ? '🥉' : ''}
@@ -336,6 +479,37 @@ function TeacherProfilePage() {
 					</div>
 				</footer>
 			</section>
+			{loading && (
+				<div style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: '999' }}>
+					<button
+						type="button"
+						className="inline-flex items-center px-12 py-12 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-blue-600 hover:bg-rose-500 focus:border-rose-700 active:bg-rose-700 transition ease-in-out duration-150 cursor-default"
+						disabled=""
+					>
+						<svg
+							className="animate-spin -ml-1 mr-8 h-24 w-24 text-white"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<circle
+								className="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								strokeWidth="4"
+							></circle>
+							<path
+								className="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						Loading...
+					</button>
+				</div>
+			)}
 		</div>
 	);
 }

@@ -1,3 +1,7 @@
+
+// IGNORE THIS PAGE!!!!!!!!! GO TO FirebaseRegisterTab
+
+
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { motion } from 'framer-motion';
 import { Controller, useForm } from 'react-hook-form';
@@ -39,7 +43,7 @@ const defaultValues = {
 	email: '',
 	password: '',
 	passwordConfirm: '',
-	level: '1',
+	level: 1,
 	acceptTermsConditions: false
 };
 
