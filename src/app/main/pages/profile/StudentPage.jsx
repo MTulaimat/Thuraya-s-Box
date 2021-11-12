@@ -16,6 +16,7 @@ import FirebaseService from 'app/services/firebaseService';
 // import { doc, setDoc } from 'firebase/firestore';
 import TextField from '@material-ui/core/TextField';
 import { showMessage } from 'app/store/fuse/messageSlice';
+import { confirmAlert } from 'react-confirm-alert';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -707,6 +708,53 @@ function ProfilePage() {
 								}
 								style={{ height: 60, width: 60, left: -40, top: 6, position: 'absolute' }}
 							/>
+							<img
+								className="rounded-full"
+								src={'assets/images/icons/trash.svg'}
+								style={{
+									cursor: 'pointer',
+									height: 30,
+									width: 30,
+									left: 360,
+									top: 6,
+									position: 'absolute'
+								}}
+								onClick={() => {
+									confirmAlert({
+										title: 'Confirm',
+										message: 'Are you sure want to perform this action?',
+										buttons: [
+											{
+												label: 'Yes',
+												onClick: () => {
+													FirebaseService.firestore
+														.collection('users')
+														.doc(currentStudentId)
+														.collection('comments')
+														.doc(comment.id)
+														.delete()
+														.then(() => {
+															console.log('Document successfully deleted!');
+															setTimeout(() => {
+																getComments();
+																dispatch(
+																	showMessage({ message: 'Comment was deleted' })
+																);
+															}, 200);
+														})
+														.catch(error => {
+															console.error('Error removing document: ', error);
+														});
+												}
+											},
+											{
+												label: 'No'
+												//onClick: () => alert('Click No')
+											}
+										]
+									});
+								}}
+							/>
 							<div>
 								<div
 									className="bg-gray-100 dark:bg-gray-700 rounded-3xl px-4 pt-2 pb-2.5"
@@ -732,50 +780,53 @@ function ProfilePage() {
 					</div>
 				);
 			})}
-
-			<div>
-				<textarea
-					name="comment"
-					id="commentTextArea"
-					style={{ border: '1px solid #242424', width: '400px', height: '200px' }}
-				></textarea>
-				<br />
-				<Button
-					variant="outlined"
-					style={{
-						color: '#F3B25F',
-						borderColor: '#F3B25F',
-						borderWidth: '1.5px',
-						fontSize: '16px',
-						padding: '0px 6px',
-						borderRadius: '5px'
-					}}
-					onClick={() => {
-						if (commentTextArea.value !== '') {
-							FirebaseService.firestore
-								.collection('users')
-								.doc(currentStudentId)
-								.collection('comments')
-								.add({
-									content: commentTextArea.value.replace(/\r\n|\r|\n/g, '\\n'),
-									name: user.name,
-									uid: user.uid,
-									role: user.role.includes('teacher') ? 'teacher' : 'admin',
-									date: new Date().addHours(4).toISOString()
-								})
-								.then(() => {
-									dispatch(showMessage({ message: 'Comment was added successfully!' }));
-									commentTextArea.value = '';
-									setTimeout(function () {
-										getComments();
-									}, 1000);
-								});
-						}
-					}}
-				>
-					Send
-				</Button>
-			</div>
+			{user.role.includes('teacher') || user.role.includes('admin') ? (
+				<div style={{ display: 'flex', flexDirection: 'column' }}>
+					<textarea
+						name="comment"
+						id="commentTextArea"
+						style={{ border: '1px solid #242424', width: '400px', height: '200px' }}
+					></textarea>
+					<br />
+					<Button
+						variant="outlined"
+						style={{
+							color: '#FFFFFF',
+							backgroundColor: '#F3B25F',
+							borderColor: '#F3B25F',
+							borderWidth: '1.5px',
+							fontSize: '16px',
+							padding: '0px 6px',
+							borderRadius: '5px',
+							margin: '0 auto'
+						}}
+						onClick={() => {
+							if (commentTextArea.value !== '') {
+								FirebaseService.firestore
+									.collection('users')
+									.doc(currentStudentId)
+									.collection('comments')
+									.add({
+										content: commentTextArea.value.replace(/\r\n|\r|\n/g, '\\n'),
+										name: user.name,
+										uid: user.uid,
+										role: user.role.includes('teacher') ? 'teacher' : 'admin',
+										date: new Date().addHours(4).toISOString()
+									})
+									.then(() => {
+										commentTextArea.value = '';
+										setTimeout(function () {
+											getComments();
+											dispatch(showMessage({ message: 'Comment was added successfully!' }));
+										}, 300);
+									});
+							}
+						}}
+					>
+						Send
+					</Button>
+				</div>
+			) : null}
 		</div>
 	);
 }
