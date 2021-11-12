@@ -16,6 +16,8 @@ import { forEach } from 'lodash';
 import firebase from 'firebase/app';
 import { doc, setDoc } from 'firebase/firestore';
 import { random } from 'lodash';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -105,6 +107,7 @@ function AdminProfilePage() {
 	const [avgExercise, setAvgExercise] = useState([]);
 	const [refreshToggler, setRefreshToggler] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [section, setSection] = useState('All');
 
 	// let createFirestoreData = () => {
 	//   return FirebaseService.createFakeData();
@@ -154,24 +157,26 @@ function AdminProfilePage() {
 		setLoading(true);
 
 		FirebaseService.calculateLessonCompletedForAllStudents();
-		const query1 = await FirebaseService.firestore
+		const teachersQuery = await FirebaseService.firestore
 			.collection('users')
 			.where('role', 'array-contains', 'teacher')
 			.get();
 
-		for (const doc of query1.docs) {
+		for (const doc of teachersQuery.docs) {
 			// for each teacher, get all their students
-			const query2 = await FirebaseService.firestore
+			const studentsQuery = await FirebaseService.firestore
 				.collection('users')
 				.where('teacherEmail', '==', doc.data().email)
 				.get();
 
-			let count = query2.docs.length;
+			let count = studentsQuery.docs.length;
 			let sum = 0;
 
 			// sum the averages of all the students
-			for (const doc2 of query2.docs) {
-				sum = sum + doc2.data().averageScore;
+			for (const studentDoc of studentsQuery.docs) {
+				if (studentDoc.data()?.averageScore > 0) {
+					sum = sum + studentDoc.data().averageScore;
+				}
 			}
 
 			// update the teacher's data with the average scores
@@ -356,6 +361,19 @@ function AdminProfilePage() {
 		});
 	}, [refreshToggler]);
 
+	let sectionChanged = section => {
+		if (
+			typeof section === 'string' &&
+			(section == 'All' || section == 'A' || section == 'B' || section == 'C' || section == 'D' || section == 'E')
+		) {
+			setSection(section);
+
+			FirebaseService.getAllStudents(section).then(data => {
+				setStudentsData(data);
+			});
+		}
+	};
+
 	return (
 		<div className={classes.root}>
 			<div
@@ -392,11 +410,11 @@ function AdminProfilePage() {
 								</div> */}
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Active:</div>
-									<div>2021-10-13{user.data.lastOnline}</div>
+									<div>{user.data.lastOnline?.split('T')[0]}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Date Joined:</div>
-									<div>2021-10-05{user.data.dateJoined}</div>
+									<div>{user.data.dateJoined?.split('T')[0]}</div>
 								</div>
 							</div>
 						</div>
@@ -447,6 +465,7 @@ function AdminProfilePage() {
 					Add Teacher Names to All Students
 				</button> */}
 			</div>
+
 			<br />
 			<br />
 			<p className={classes.title}>Analytics</p>
@@ -583,6 +602,22 @@ function AdminProfilePage() {
 								<div className="relative w-full py-4 px-14 max-w-full flex-grow flex-1">
 									<p className="font-semibold text-lg text-blueGray-700">Data</p>
 								</div>
+								<Select
+									labelId="demo-simple-select-outlined-label"
+									id="demo-simple-select-outlined"
+									value={section}
+									onChange={e => {
+										sectionChanged(e.target.value);
+									}}
+									label="Section"
+								>
+									<MenuItem value="All">All</MenuItem>
+									<MenuItem value="A">A</MenuItem>
+									<MenuItem value="B">B</MenuItem>
+									<MenuItem value="C">C</MenuItem>
+									<MenuItem value="D">D</MenuItem>
+									<MenuItem value="E">E</MenuItem>
+								</Select>
 								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
 									<Button
 										variant="outlined"
@@ -612,13 +647,25 @@ function AdminProfilePage() {
 										>
 											#
 										</th>
-										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+										<th
+											className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+											style={{ width: '180px' }}
+										>
 											Name
 										</th>
-										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-											Current Lesson
+										<th
+											className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+											style={{ width: '90px' }}
+										>
+											Section
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Lesson
+										</th>
+										<th
+											className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+											style={{ width: '220px' }}
+										>
 											Exercise Completed
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
@@ -635,13 +682,25 @@ function AdminProfilePage() {
 											>
 												{index + 1}
 											</td>
-											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
+											<td
+												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700"
+												style={{ width: '180px' }}
+											>
 												{item.name}
+											</td>
+											<td
+												className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700"
+												style={{ width: '90px' }}
+											>
+												{item.section}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
 												Arabic
 											</td>
-											<td className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap font-mono">
+											<td
+												className="border-t-0 py-9 px-14 align-center border-l-0 border-r-0 whitespace-nowrap font-mono"
+												style={{ width: '220px' }}
+											>
 												{item.completed > 0
 													? `${item.completed}- ` + allExercises[item.completed].title
 													: '-'}

@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react';
 import { useUrlSearchParams } from 'use-url-search-params';
 import './TeacherPage.css';
 import FirebaseService from 'app/services/firebaseService';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -112,6 +114,7 @@ function TeacherProfilePage() {
 	const [studentsData, setStudentsData] = useState([]);
 	const [refreshToggler, setRefreshToggler] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [section, setSection] = useState('A');
 
 	const categories = [
 		'Letter Picker',
@@ -298,6 +301,25 @@ function TeacherProfilePage() {
 		history.push('/pages/student?id=' + id);
 	};
 
+	let sectionChanged = section => {
+		if (
+			typeof section === 'string' &&
+			(section == 'All' || section == 'A' || section == 'B' || section == 'C' || section == 'D' || section == 'E')
+		) {
+			setSection(section);
+
+			if (params.id == null && user.role.includes('teacher')) {
+				FirebaseService.getAllStudentsForTeacher(user.uid, section).then(data => {
+					setStudentsData(data);
+				});
+			} else if (params.id != null) {
+				FirebaseService.getAllStudentsForTeacher(params.id, section).then(data => {
+					setStudentsData(data);
+				});
+			}
+		}
+	};
+
 	return (
 		<div className={classes.root}>
 			<div
@@ -333,11 +355,11 @@ function TeacherProfilePage() {
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Active:</div>
-									<div>2021-10-13{user.data.lastOnline}</div>
+									<div>{user.data.lastOnline?.split('T')[0]}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Date Joined:</div>
-									<div>2021-10-05{user.data.dateJoined}</div>
+									<div>{user.data.dateJoined?.split('T')[0]}</div>
 								</div>
 							</div>
 						</div>
@@ -396,6 +418,22 @@ function TeacherProfilePage() {
 								<div className="relative w-full py-4 px-14 max-w-full flex-grow flex-1">
 									<p className="font-semibold text-lg text-blueGray-700">Data</p>
 								</div>
+								<Select
+									labelId="demo-simple-select-outlined-label"
+									id="demo-simple-select-outlined"
+									value={section}
+									onChange={e => {
+										sectionChanged(e.target.value);
+									}}
+									label="Section"
+								>
+									<MenuItem value="All">All</MenuItem>
+									<MenuItem value="A">A</MenuItem>
+									<MenuItem value="B">B</MenuItem>
+									<MenuItem value="C">C</MenuItem>
+									<MenuItem value="D">D</MenuItem>
+									<MenuItem value="E">E</MenuItem>
+								</Select>
 								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
 									<Button
 										variant="outlined"
@@ -426,6 +464,9 @@ function TeacherProfilePage() {
 											Name
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+											Section
+										</th>
+										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Current Lesson
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
@@ -444,6 +485,9 @@ function TeacherProfilePage() {
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
 												{item.name}
+											</td>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
+												{item.section}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
 												Arabic

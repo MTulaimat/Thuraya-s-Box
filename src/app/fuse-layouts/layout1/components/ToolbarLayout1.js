@@ -41,7 +41,7 @@ function ToolbarLayout1(props) {
 					<div className="flex flex-1 px-16">
 						{config.navbar.display && config.navbar.position === 'left' && (
 							<>
-								<Hidden mdDown>
+								{/* <Hidden mdDown>
 									{(config.navbar.style === 'style-3' || config.navbar.style === 'style-3-dense') && (
 										<NavbarToggleButton className="w-40 h-40 p-0 mx-0" />
 									)}
@@ -49,11 +49,11 @@ function ToolbarLayout1(props) {
 									{config.navbar.style === 'style-1' && !navbar.open && (
 										<NavbarToggleButton className="w-40 h-40 p-0 mx-0" />
 									)}
-								</Hidden>
+								</Hidden> */}
 
-								<Hidden lgUp>
-									<NavbarToggleButton className="w-40 h-40 p-0 mx-0 sm:mx-8" />
-								</Hidden>
+								{/* <Hidden lgUp> */}
+								<NavbarToggleButton className="w-40 h-40 p-0 mx-0 sm:mx-8" />
+								{/* </Hidden> */}
 							</>
 						)}
 
@@ -63,7 +63,7 @@ function ToolbarLayout1(props) {
 					</div>
 
 					<div className="flex items-center px-8 h-full overflow-x-auto">
-						{/* <LanguageSwitcher /> */} 
+						{/* <LanguageSwitcher /> */}
 						{/* TODOXD come here to add / remove toolbar items */}
 						{/* <AdjustFontSize /> */}
 

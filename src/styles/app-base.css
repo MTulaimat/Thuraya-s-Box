@@ -145,3 +145,14 @@ input:-webkit-autofill {
 #fuse-layout > div > div > div > div > ul > ul > li {
 	opacity: 0%;
 }
+
+body
+	> div.MuiDrawer-root-1053.MuiDrawer-modal-1064
+	> div.MuiPaper-root-1224.MuiDrawer-paper-1055.makeStyles-navbarPaper-1052.flex-col.flex-auto.h-full.MuiDrawer-paperAnchorLeft-1056.MuiPaper-elevation16-1243
+	> div
+	> div
+	> ul
+	> ul
+	> li {
+	opacity: 0%;
+}

@@ -48,7 +48,7 @@ function NavbarStyle1(props) {
 
 	return (
 		<>
-			<Hidden mdDown>
+			{/* <Hidden mdDown>
 				<div
 					className={clsx(
 						classes.navbar,
@@ -60,9 +60,9 @@ function NavbarStyle1(props) {
 				>
 					<NavbarStyle1Content />
 				</div>
-			</Hidden>
+			</Hidden> */}
 
-			<Hidden lgUp>
+			{/* <Hidden lgUp> */}
 				<SwipeableDrawer
 					classes={{
 						paper: clsx(classes.navbarPaper, 'flex-col flex-auto h-full')
@@ -79,7 +79,7 @@ function NavbarStyle1(props) {
 				>
 					<NavbarStyle1Content />
 				</SwipeableDrawer>
-			</Hidden>
+			{/* </Hidden> */}
 		</>
 	);
 }

@@ -6,7 +6,11 @@ import TextField from '@material-ui/core/TextField';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import { registerWithFirebase } from 'app/auth/store/registerSlice';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
 import * as yup from 'yup';
 import _ from '@lodash';
 import { FormControl, FormControlLabel, RadioGroup, Radio } from '@material-ui/core';
@@ -20,12 +24,14 @@ const defaultValues = {
 	passwordConfirm: '',
 	teacherEmail: '',
 	role: '',
-	level: 1
+	level: 1,
+	section: ''
 };
 
 function FirebaseRegisterTab(props) {
 	/* * Form Validation Schema */
 	//Musab
+
 	const [isStudent, setIsStudent] = useState(true);
 
 	const schema = yup.object().shape({
@@ -35,6 +41,7 @@ function FirebaseRegisterTab(props) {
 		level: yup.string().required('You must enter a level'),
 		password: yup.string().required('Please enter your password.').min(8, 'Password is too short - should be 8 chars minimum.'),
 		passwordConfirm: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match'),
+		section: yup.string().required('You must select a section'),
 		teacherEmail: yup.string().when('isStudent', {
 			is: true, // alternatively: (val) => val == true
 			then: yup.string().email("You must enter a valid email").required('You must enter an email'),
@@ -218,31 +225,57 @@ function FirebaseRegisterTab(props) {
 					{/* Teacher Email */}
 					<>
 						{isStudent ? (
-							<Controller
-								name="teacherEmail"
-								control={control}
-								render={({ field }) => (
-									<TextField
-										{...field}
-										className="mb-16"
-										type="text"
-										error={!!errors.teacherEmail}
-										helperText={errors?.teacherEmail?.message}
-										label="Teacher's Email"
-										InputProps={{
-											endAdornment: (
-												<InputAdornment position="end">
-													<Icon className="text-20" color="action">
-														email
-													</Icon>
-												</InputAdornment>
-											)
-										}}
-										variant="outlined"
-										required
-									/>
-								)}
-							/>
+							<>
+								<Controller
+									name="teacherEmail"
+									control={control}
+									render={({ field }) => (
+										<TextField
+											{...field}
+											className="mb-16"
+											type="text"
+											error={!!errors.teacherEmail}
+											helperText={errors?.teacherEmail?.message}
+											label="Teacher's Email"
+											InputProps={{
+												endAdornment: (
+													<InputAdornment position="end">
+														<Icon className="text-20" color="action">
+															email
+														</Icon>
+													</InputAdornment>
+												)
+											}}
+											variant="outlined"
+											required
+										/>
+									)}
+								/>
+								<Controller
+									name="section"
+									control={control}
+									render={({ field }) => (
+										<FormControl variant="outlined" style={{ padding: '3px' }}>
+											<InputLabel id="demo-simple-select-outlined-label">Section</InputLabel>
+											<Select
+												{...field}
+												labelId="demo-simple-select-outlined-label"
+												id="demo-simple-select-outlined"
+												//value={section}
+												//onChange={handleChange}
+												label="Section"
+											>
+												<MenuItem value="A">A</MenuItem>
+												<MenuItem value="B">B</MenuItem>
+												<MenuItem value="C">C</MenuItem>
+												<MenuItem value="D">D</MenuItem>
+												<MenuItem value="E">E</MenuItem>
+											</Select>
+											<FormHelperText>Required</FormHelperText>
+										</FormControl>
+									)}
+								/>
+							</>
 						) : null}
 					</>
 

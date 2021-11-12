@@ -19,6 +19,11 @@ import config from './firebaseServiceConfig';
 
 class FirebaseService {
 	init(success) {
+		Date.prototype.addHours = function (h) {
+			this.setHours(this.getHours() + h);
+			return this;
+		};
+
 		if (Object.entries(config).length === 0 && config.constructor === Object) {
 			if (process.env.NODE_ENV === 'development') {
 				console.warn(
@@ -38,13 +43,19 @@ class FirebaseService {
 		success(true);
 	}
 
-	getAllStudents = () => {
+	getAllStudents = (section) => {
 		if (!firebase.apps.length) {
 			return false;
 		}
 
 		var usersRef = this.firestore.collection("users");
-		var query = usersRef.where("role", "array-contains", "student").orderBy('averageScore', 'desc');
+
+		if (section != null && section != '' && section != 'All' && typeof section == 'string') {
+			var query = usersRef.where("role", "array-contains", "student").where('section', '==', section).orderBy('averageScore', 'desc');
+		}
+		else {
+			var query = usersRef.where("role", "array-contains", "student").orderBy('averageScore', 'desc');
+		}
 
 		return new Promise((resolve, reject) => {
 			query.get()
@@ -65,7 +76,7 @@ class FirebaseService {
 	};
 
 
-	getAllStudentsForTeacher = async (teacherId) => {
+	getAllStudentsForTeacher = async (teacherId, section) => {
 		if (!firebase.apps.length) {
 			return false;
 		}
@@ -76,8 +87,12 @@ class FirebaseService {
 		var teacherEmail = teacherDoc.data().email;
 
 		var usersRef = this.firestore.collection("users");
-		var query = usersRef.where('teacherEmail', '==', teacherEmail).where("role", "array-contains", "student").orderBy('averageScore', 'desc');
 
+		if (section != null && section != '' && section != 'All' && typeof section === 'string') {
+			var query = usersRef.where('teacherEmail', '==', teacherEmail).where('section', '==', section).where("role", "array-contains", "student").orderBy('averageScore', 'desc');
+		} else {
+			var query = usersRef.where('teacherEmail', '==', teacherEmail).where("role", "array-contains", "student").orderBy('averageScore', 'desc');
+		}
 		return new Promise((resolve, reject) => {
 			query.get()
 				.then((querySnapshot) => {
@@ -297,6 +312,7 @@ class FirebaseService {
 		});
 	};
 
+
 	updateUserData = user => {
 		if (!firebase.apps.length) {
 			return false;
@@ -314,6 +330,9 @@ class FirebaseService {
 				currentExercise: user.currentExercise != undefined ? user.currentExercise : null,
 				teacherName: user.data.teacherName != null ? user.data.teacherName : '',
 				level: user.data.level != null ? user.data.level : 1,
+				section: user.data.section != null ? user.data.section : '',
+				lastOnline: user.data.lastOnline != null ? user.data.lastOnline : new Date().addHours(4).toISOString(),
+				dateJoined: user.data.dateJoined != null ? user.data.dateJoined : new Date().addHours(4).toISOString(),
 				// TODOXD continue here
 			}, { merge: true })
 			.then(() => {
@@ -551,6 +570,8 @@ class FirebaseService {
 							email: generatedName.split(" ").join("").toLowerCase() + "@mail.com",
 							role: ["student"],
 							teacherEmail: teacherEmail,
+							section: section,
+
 							// currentExercise: calculate this one on the front end
 						})
 						.then((docRef) => {
@@ -638,7 +659,7 @@ class FirebaseService {
 					id: doc.id,
 					...doc.data()
 				};
-			});;
+			});
 
 			if (data[i].id == 'student2@mail.com')
 				console.log(exerciseData.length);

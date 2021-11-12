@@ -13,6 +13,8 @@ import { useState, useEffect } from 'react';
 import './Leaderboard.css';
 import FirebaseService from 'app/services/firebaseService';
 import Switch from '@material-ui/core/Switch';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -129,6 +131,7 @@ function ProfilePage() {
 	const [showMyStudentsOnly, setShowMyStudentsOnly] = useState(false);
 	const [refreshToggler, setRefreshToggler] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [section, setSection] = useState('All');
 
 	let allExercises = [
 		{
@@ -250,6 +253,19 @@ function ProfilePage() {
 		setShowMyStudentsOnly(checked);
 	};
 
+	let sectionChanged = section => {
+		if (
+			typeof section === 'string' &&
+			(section == 'All' || section == 'A' || section == 'B' || section == 'C' || section == 'D' || section == 'E')
+		) {
+			setSection(section);
+
+			FirebaseService.getAllStudents(section).then(data => {
+				setStudentsData(data);
+			});
+		}
+	};
+
 	return (
 		<div className={classes.root}>
 			<p className={classes.title}>Leaderboards</p>
@@ -261,6 +277,24 @@ function ProfilePage() {
 								<div className="relative w-full py-4 px-14 max-w-full flex-grow flex-1">
 									<p className="font-semibold text-lg text-blueGray-700">Data</p>
 								</div>
+								{user.role.includes('admin') || user.role.includes('teacher') ? (
+									<Select
+										labelId="demo-simple-select-outlined-label"
+										id="demo-simple-select-outlined"
+										value={section}
+										onChange={e => {
+											sectionChanged(e.target.value);
+										}}
+										label="Section"
+									>
+										<MenuItem value="All">All</MenuItem>
+										<MenuItem value="A">A</MenuItem>
+										<MenuItem value="B">B</MenuItem>
+										<MenuItem value="C">C</MenuItem>
+										<MenuItem value="D">D</MenuItem>
+										<MenuItem value="E">E</MenuItem>
+									</Select>
+								) : null}
 								<div className="relative w-full px-6 max-w-full flex-grow flex-1 text-right">
 									{user.role.includes('teacher') ? (
 										<span style={{ paddingRight: '40px' }}>
@@ -274,20 +308,22 @@ function ProfilePage() {
 											My Students Only
 										</span>
 									) : null}
-									<Button
-										variant="outlined"
-										style={{
-											color: '#F3B25F',
-											borderColor: '#F3B25F',
-											borderWidth: '1.5px',
-											fontSize: '16px',
-											padding: '0px 6px',
-											borderRadius: '5px'
-										}}
-										onClick={() => calculateAverageScoreForAllStudents()}
-									>
-										Refresh
-									</Button>
+									{user.role.includes('admin') || user.role.includes('teacher') ? (
+										<Button
+											variant="outlined"
+											style={{
+												color: '#F3B25F',
+												borderColor: '#F3B25F',
+												borderWidth: '1.5px',
+												fontSize: '16px',
+												padding: '0px 6px',
+												borderRadius: '5px'
+											}}
+											onClick={() => calculateAverageScoreForAllStudents()}
+										>
+											Refresh
+										</Button>
+									) : null}
 								</div>
 							</div>
 						</div>
@@ -304,6 +340,12 @@ function ProfilePage() {
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Name
+										</th>
+										<th
+											className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+											style={{ width: '90px' }}
+										>
+											Section
 										</th>
 										<th className="py-9 px-14 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 											Current Lesson
@@ -327,6 +369,9 @@ function ProfilePage() {
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
 												{item.name}
+											</td>
+											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap  text-left text-blueGray-700">
+												{item.section}
 											</td>
 											<td className="border-t-0 py-9 px-14 align-middle border-l-0 border-r-0 whitespace-nowrap">
 												Arabic

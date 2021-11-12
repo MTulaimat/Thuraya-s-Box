@@ -19,7 +19,8 @@ function NavbarToggleButton(props) {
 			className={props.className}
 			onClick={ev =>
 				dispatch(
-					mdDown
+					// mdDown
+					true
 						? navbarToggleMobile()
 						: config.navbar.style === 'style-2'
 						? dispatch(

@@ -138,7 +138,10 @@ function ProfilePage() {
 	const user = useSelector(({ auth }) => auth.user);
 	const [studentData, setStudentData] = useState({});
 	const [exercisesData, setExercisesData] = useState([]);
+	const [commentsArray, setCommentsArray] = useState([]);
 	const [level, setLevel] = useState('1');
+	const [section, setSection] = useState('A');
+	const [currentStudentId, setCurrentStudentId] = useState('');
 
 	const categories = [
 		'Letter Picker',
@@ -148,6 +151,7 @@ function ProfilePage() {
 		'Letter Ordering',
 		'Word Drawing'
 	];
+
 	const widgetData1 = [70, 80, 35, 95, 70, 80];
 	const widgetData2 = [60, 30, 25, 85, 20, 40];
 	const widgetData3 = [20, 120, 45, 35, 80, 30];
@@ -234,7 +238,45 @@ function ProfilePage() {
 		window.scrollTo(0, 0);
 	}, [location]);
 
+	let getComments = () => {
+		var currentStudentId = params.id != null && params.id != '' ? params.id : user.uid;
+
+		let commentsQuery = FirebaseService.firestore
+			.collection('users')
+			.doc(currentStudentId)
+			.collection('comments')
+			.get();
+
+		commentsQuery
+			.then(querySnapshot => {
+				let data = querySnapshot.docs.map(doc => {
+					return {
+						id: doc.id,
+						...doc.data()
+					};
+				});
+				data.sort((a, b) => {
+					//return new Date(b.date) - new Date(a.date);
+					return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+				});
+
+				setCommentsArray(data);
+				console.log('Got comments successfully : ', data);
+			})
+			.catch(error => {
+				console.log('Error getting documents: ', error);
+			});
+	};
+
 	useEffect(async () => {
+		var id = params.id != null && params.id != '' ? params.id : user.uid;
+		setCurrentStudentId(id);
+
+		//!@# Get comments for this user
+		setTimeout(() => {
+			getComments();
+		}, 800);
+
 		if (params.id == null && user.role.includes('student')) {
 			console.log(user);
 			let temp = {
@@ -248,11 +290,13 @@ function ProfilePage() {
 				completed: user.data.completed,
 				teacherName: user.data.teacherName,
 				level: user.data.level,
-				averageScore: user.data.averageScore
+				averageScore: user.data.averageScore,
+				section: user.data.section
 			};
 
 			setStudentData(temp);
 			setLevel(user.data.level);
+			setSection(user.data.section != null ? user.data.section : 'E');
 
 			let querySnapshot = await FirebaseService.firestore
 				.collection('exerciseData')
@@ -275,6 +319,7 @@ function ProfilePage() {
 				.then(doc => {
 					setStudentData({ id: doc.id, ...doc.data() });
 					setLevel(doc.data().level);
+					setSection(doc.data().section != null ? doc.data().section : '');
 				})
 				.catch(error => {
 					console.log('Error getting data: ', error);
@@ -304,7 +349,6 @@ function ProfilePage() {
 		if (typeof val === 'string' && (val == '1' || val == '2' || val == '3' || val == '4' || val == '5')) {
 			setLevel(val);
 
-			console.log('studentData ', studentData);
 			FirebaseService.firestore
 				.collection('users')
 				.doc(studentData.id)
@@ -312,6 +356,21 @@ function ProfilePage() {
 				.then(res => {
 					console.log('Updated level on Firestore: ', res);
 					dispatch(showMessage({ message: "Student's Level was Updated!" }));
+				});
+		}
+	};
+
+	let sectionChanged = val => {
+		if (typeof val === 'string' && (val == 'A' || val == 'B' || val == 'C' || val == 'D' || val == 'E')) {
+			setSection(val);
+
+			FirebaseService.firestore
+				.collection('users')
+				.doc(studentData.id)
+				.update({ section: val })
+				.then(res => {
+					console.log('Updated Section on Firestore: ', res);
+					dispatch(showMessage({ message: "Student's Section was Updated!" }));
 				});
 		}
 	};
@@ -354,14 +413,37 @@ function ProfilePage() {
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Active:</div>
-									<div>
-										{studentData.lastActive}2021-10-24{/*teacher.data.lastOnline*/}
-									</div>
+									<div>{studentData.lastOnline?.split('T')[0]}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Date Joined:</div>
+									<div>{studentData.dateJoined?.split('T')[0]}</div>
+								</div>
+
+								<div className={classes.smallerInfoRow} style={{ paddingTop: '10px' }}>
+									<div className="font-semibold">Section:</div>
 									<div>
-										{studentData.dateJoined}2021-10-19{/*teacher.data.dateJoined*/}
+										{user.role.includes('teacher') || user.role.includes('admin') ? (
+											<>
+												<select
+													name="section"
+													id="section"
+													value={section}
+													style={{ border: 'solid 1px', padding: '1px 16px' }}
+													onChange={e => {
+														sectionChanged(e.target.value);
+													}}
+												>
+													<option value="A">A</option>
+													<option value="B">B</option>
+													<option value="C">C</option>
+													<option value="D">D</option>
+													<option value="E">E</option>
+												</select>
+											</>
+										) : (
+											user.data.section
+										)}
 									</div>
 								</div>
 
@@ -601,82 +683,144 @@ function ProfilePage() {
 			</p>
 			<br />
 
-			<Comment1></Comment1>
-			<br />
-			<br />
-			<Comment2></Comment2>
-		</div>
-	);
-}
-
-function Comment1() {
-	return (
-		<div className="flex items-center justify-center w-screen pt-6" style={{ fontSize: '12px' }}>
-			<div
-				className="text-black p-4 flex"
-				style={{
-					position: 'relative'
-					// boxShadow: 'rgb(149 157 165 / 50%) 0px 3px 4px'
-				}}
-			>
-				<img
-					className="rounded-full shadow-lg"
-					src="assets/images/custom/admin_picture.png"
-					style={{ height: 60, width: 60, left: -40, top: 6, position: 'absolute' }}
-				/>
-				<div>
+			{commentsArray.map((comment, index) => {
+				return (
 					<div
-						className="bg-gray-100 dark:bg-gray-700 rounded-3xl px-4 pt-2 pb-2.5"
-						style={{ borderRadius: 15, padding: '30px 30px 30px 30px' }}
+						className="flex items-center justify-center w-screen pt-6"
+						key={comment.id}
+						style={{ fontSize: '12px', paddingBottom: '25px' }}
 					>
-						<div className="font-semibold text-sm leading-relaxed">Admin</div>
-						<div className="text-base leading-snug md:leading-normal" style={{ marginTop: 7 }}>
-							You're doing a great job! Keep it up!
+						<div
+							className="text-black p-4 flex"
+							style={{
+								position: 'relative'
+
+								// boxShadow: 'rgb(149 157 165 / 50%) 0px 3px 4px'
+							}}
+						>
+							<img
+								className="rounded-full shadow-lg"
+								src={
+									comment.role == 'admin'
+										? 'assets/images/custom/admin_picture.png'
+										: 'assets/images/custom/teacher.svg'
+								}
+								style={{ height: 60, width: 60, left: -40, top: 6, position: 'absolute' }}
+							/>
+							<div>
+								<div
+									className="bg-gray-100 dark:bg-gray-700 rounded-3xl px-4 pt-2 pb-2.5"
+									style={{ borderRadius: 15, padding: '30px 30px 30px 30px', width: '370px' }}
+								>
+									<div className="font-semibold text-sm leading-relaxed">{comment.name}</div>
+									<div className="text-base leading-snug md:leading-normal" style={{ marginTop: 7 }}>
+										<div
+											dangerouslySetInnerHTML={{
+												__html: comment.content.replace(/\\n/g, '<br />')
+											}}
+										/>
+									</div>
+								</div>
+								<div className="text-sm ml-4 mt-0.5 text-gray-500 dark:text-gray-400">
+									{comment.date?.split('T')[0]}
+								</div>
+								{/* <div className="bg-white dark:bg-gray-700 border border-white dark:border-gray-700 rounded-full float-right -mt-8 mr-0.5 flex shadow items-center ">
+							<span className="text-sm ml-1 pr-1.5 text-gray-500 dark:text-gray-300">3</span>
+						</div> */}
+							</div>
 						</div>
 					</div>
-					<div className="text-sm ml-4 mt-0.5 text-gray-500 dark:text-gray-400">2 days ago</div>
-					{/* <div className="bg-white dark:bg-gray-700 border border-white dark:border-gray-700 rounded-full float-right -mt-8 mr-0.5 flex shadow items-center ">
-						<span className="text-sm ml-1 pr-1.5 text-gray-500 dark:text-gray-300">3</span>
-					</div> */}
-				</div>
+				);
+			})}
+
+			<div>
+				<textarea
+					name="comment"
+					id="commentTextArea"
+					style={{ border: '1px solid #242424', width: '400px', height: '200px' }}
+				></textarea>
+				<br />
+				<Button
+					variant="outlined"
+					style={{
+						color: '#F3B25F',
+						borderColor: '#F3B25F',
+						borderWidth: '1.5px',
+						fontSize: '16px',
+						padding: '0px 6px',
+						borderRadius: '5px'
+					}}
+					onClick={() => {
+						if (commentTextArea.value !== '') {
+							FirebaseService.firestore
+								.collection('users')
+								.doc(currentStudentId)
+								.collection('comments')
+								.add({
+									content: commentTextArea.value.replace(/\r\n|\r|\n/g, '\\n'),
+									name: user.name,
+									uid: user.uid,
+									role: user.role.includes('teacher') ? 'teacher' : 'admin',
+									date: new Date().addHours(4).toISOString()
+								})
+								.then(() => {
+									dispatch(showMessage({ message: 'Comment was added successfully!' }));
+									commentTextArea.value = '';
+									setTimeout(function () {
+										getComments();
+									}, 1000);
+								});
+						}
+					}}
+				>
+					Send
+				</Button>
 			</div>
 		</div>
 	);
 }
 
-function Comment2() {
-	return (
-		<div
-			className="flex items-center justify-center w-screen pt-6 bg-white dark:bg-gray-800"
-			style={{ fontSize: '12px' }}
-		>
-			<div
-				className="bg-white dark:bg-gray-800 text-black dark:text-gray-200 p-4 antialiased flex max-w-lg"
-				style={{ position: 'relative' }}
-			>
-				<img
-					className="rounded-full shadow-lg"
-					src="assets/images/custom/teacher.svg"
-					style={{ height: 60, width: 60, left: -40, top: 6, position: 'absolute' }}
-				/>
-				<div>
-					<div
-						className="bg-gray-100 dark:bg-gray-700 rounded-3xl px-4 pt-2 pb-2.5"
-						style={{ borderRadius: 15, padding: '30px 30px 30px 30px' }}
-					>
-						<div className="font-semibold text-sm leading-relaxed">Teacher Fatima</div>
-						<div className="text-base leading-snug md:leading-normal" style={{ marginTop: 7 }}>
-							Please remember to finish today's lesson
-							<br /> before the end of the day!
-						</div>
-					</div>
-					<div className="text-sm ml-4 mt-0.5 text-gray-500 dark:text-gray-400">3 days ago</div>
-					{/* <div className="bg-white dark:bg-gray-700 border border-white dark:border-gray-700 rounded-full float-right -mt-8 mr-0.5 flex shadow items-center ">
-						<span className="text-sm ml-1 pr-1.5 text-gray-500 dark:text-gray-300">3</span>
-					</div> */}
-				</div>
-			</div>
-		</div>
-	);
-}
+/*
+	content: "Good job!\nYou're a really great student!"
+	date: "2021-11-19T10:02:37Z"
+	name: "Fatima Ahmad"
+	role: "teacher"
+	uid: "ENPOawiBQ7EhAwXJHFOG"
+*/
+
+// function Comment2() {
+// 	return (
+// 		<div
+// 			className="flex items-center justify-center w-screen pt-6 bg-white dark:bg-gray-800"
+// 			style={{ fontSize: '12px', }
+// 		>
+// 			<div
+// 				className="bg-white dark:bg-gray-800 text-black dark:text-gray-200 p-4 antialiased flex"
+// 				style={{ position: 'relative' }}
+// 			>
+// 				<img
+// 					className="rounded-full shadow-lg"
+// 					src="assets/images/custom/teacher.svg"
+// 					style={{ height: 60, width: 60, left: -40, top: 6, position: 'absolute' }}
+// 				/>
+// 				<div>
+// 					<div
+// 						className="bg-gray-100 dark:bg-gray-700 rounded-3xl px-4 pt-2 pb-2.5"
+// 						style={{ borderRadius: 15, padding: '30px 30px 30px 30px' }}
+// 					>
+// 						<div className="font-semibold text-sm leading-relaxed">Teacher Fatima</div>
+// 						<div className="text-base leading-snug md:leading-normal" style={{ marginTop: 7 }}>
+// 							Please remember to finish today's lesson
+// 							<br /> before the end of the day!
+// 						</div>
+// 					</div>
+// 					<div className="text-sm ml-4 mt-0.5 text-gray-500 dark:text-gray-400">3 days ago</div>
+// 					{/* <div className="bg-white dark:bg-gray-700 border border-white dark:border-gray-700 rounded-full float-right -mt-8 mr-0.5 flex shadow items-center ">
+// 						<span className="text-sm ml-1 pr-1.5 text-gray-500 dark:text-gray-300">3</span>
+// 					</div> */}
+// 				</div>
+// 			</div>
+// 		</div>
+// 	);
+// }
 export default ProfilePage;

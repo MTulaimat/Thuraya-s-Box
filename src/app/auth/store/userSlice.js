@@ -50,6 +50,10 @@ export const createUserSettingsFirebase = authUser => async (dispatch, getState)
 			level: authUser.level,
 			completed: authUser.completed,
 			averageScore: authUser.averageScore,
+
+			lastOnline: authUser.lastOnline,
+			dateJoined: authUser.dateJoined,
+			section: authUser.section,
 		}
 	});
 
