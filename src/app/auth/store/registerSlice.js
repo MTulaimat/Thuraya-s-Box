@@ -47,7 +47,8 @@ export const registerWithFirebase = model => async dispatch => {
 		teacherEmail,
 		role,
 		currentExercise,
-		level
+		level,
+		section
 	} = model;
 
 	// TODOXD warn user in form if teacher email doesnt exist!
@@ -60,7 +61,8 @@ export const registerWithFirebase = model => async dispatch => {
 			levelInt = parseInt(level);
 
 		if (!isTeacherEmail) {
-			console.log("email doesnt exist!");
+			alert(`Teacher's e-mail doesn't exist!`);
+			console.log("Teacher's e-mail doesn't exist!");
 			return;
 		}
 	}
@@ -84,6 +86,9 @@ export const registerWithFirebase = model => async dispatch => {
 					currentExercise,
 					level: levelInt,
 					completed: 0,
+					dateJoined: new Date().addHours(4).toISOString(),
+					lastOnline: new Date().addHours(4).toISOString(),
+					section
 				})
 			);
 

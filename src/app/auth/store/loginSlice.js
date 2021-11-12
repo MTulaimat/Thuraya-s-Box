@@ -29,7 +29,20 @@ export const submitLoginWithFireBase =
 			}
 			return firebaseService.auth
 				.signInWithEmailAndPassword(email, password)
-				.then(() => {
+				.then((data) => {
+					// Update last online when user logs in
+					console.log('User that just logged in with firebase:', data);
+
+					firebaseService.firestore
+						.collection('users')
+						.doc(data.user.uid)
+						.update({ lastOnline: new Date().addHours(4).toISOString() }, { merge: true })
+						.then(res => {
+							console.log('Last Online was updated on Firestore: ', res);
+						}).catch(err => {
+							console.log('Last Online was updated on Firestore ERROR: ', err);
+						});
+
 					return dispatch(loginSuccess());
 				})
 				.catch(error => {
