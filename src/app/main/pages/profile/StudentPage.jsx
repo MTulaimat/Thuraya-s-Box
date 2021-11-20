@@ -377,7 +377,7 @@ function ProfilePage() {
 	};
 
 	return (
-		<div className={classes.root}>
+		<><div className={classes.root}>
 			<div
 				className="bg-gray-200 dark:bg-gray-800 flex flex-wrap items-center justify-center"
 				style={{ width: '600px', borderRadius: '15px' }}
@@ -414,11 +414,11 @@ function ProfilePage() {
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Active:</div>
-									<div>{studentData.lastOnline?.split('T')[0]}</div>
+									<div>{studentData.lastOnline != null ? studentData.lastOnline?.split('T')[0] : 'Today'}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
-									<div className="font-semibold">Date Joined:</div>
-									<div>{studentData.dateJoined?.split('T')[0]}</div>
+									<div className="font-semibold">Date Joined:</div>									
+									<div>{studentData.dateJoined != null ? studentData.dateJoined?.split('T')[0] : '2021-10-20'}</div>
 								</div>
 
 								<div className={classes.smallerInfoRow} style={{ paddingTop: '10px' }}>
@@ -443,8 +443,8 @@ function ProfilePage() {
 												</select>
 											</>
 										) : (
-											user.data.section
-										)}
+												user.data.section
+											)}
 									</div>
 								</div>
 
@@ -470,8 +470,8 @@ function ProfilePage() {
 												</select>
 											</>
 										) : (
-											user.data.level
-										)}
+												user.data.level
+											)}
 									</div>
 								</div>
 							</div>
@@ -676,15 +676,15 @@ function ProfilePage() {
 					</Modal>
 				</div>
 			) : (
-				<></>
-			)}
+					<></>
+				)}
 
 			<p className={classes.title} style={{ marginTop: '80px' }}>
 				Comments
 			</p>
 			<br />
 
-			{commentsArray.map((comment, index) => {
+			{commentsArray?.length === 0 ? <h2 style={{ color: 'darkgray' }}>No Comments!</h2> : commentsArray.map((comment, index) => {
 				return (
 					<div
 						className="flex items-center justify-center w-screen pt-6"
@@ -827,7 +827,9 @@ function ProfilePage() {
 					</Button>
 				</div>
 			) : null}
+
 		</div>
+			<div style={{ paddingBottom: '150px' }} /></>
 	);
 }
 

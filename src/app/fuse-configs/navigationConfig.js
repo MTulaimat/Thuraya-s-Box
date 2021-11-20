@@ -94,7 +94,7 @@ const navigationConfig = [
 			},
 		]
 	},
-	{
+	/*{
 		id: 'user-interface',
 		title: 'FOR DEVELOPMENT',
 		type: 'collapse',
@@ -358,7 +358,7 @@ const navigationConfig = [
 				]
 			}
 		]
-	}
+	}*/
 ];
 
 export default navigationConfig;

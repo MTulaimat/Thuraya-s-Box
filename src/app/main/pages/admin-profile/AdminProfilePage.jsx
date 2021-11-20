@@ -410,11 +410,11 @@ function AdminProfilePage() {
 								</div> */}
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Last Active:</div>
-									<div>{user.data.lastOnline?.split('T')[0]}</div>
+									<div>{user.data.lastOnline != null ? user.data.lastOnline?.split('T')[0] : 'Today'}</div>
 								</div>
 								<div className={classes.smallerInfoRow}>
 									<div className="font-semibold">Date Joined:</div>
-									<div>{user.data.dateJoined?.split('T')[0]}</div>
+									<div>{user.data.dateJoined != null ? user.data.dateJoined?.split('T')[0] : '2021-10-20'}</div>
 								</div>
 							</div>
 						</div>

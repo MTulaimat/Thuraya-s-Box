@@ -1,0 +1,8 @@
+npm i -g firebase-tools // install firebase cli (for hosting) once
+
+
+firebase init hosting // once per project
+
+
+firebase deploy --only hosting
+

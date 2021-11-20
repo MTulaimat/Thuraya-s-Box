@@ -23,7 +23,7 @@ function Error404Page() {
 						Sorry but we could not find the page you are looking for
 					</Typography>
 				</motion.div>
-
+				{/* 
 				<Paper className="flex items-center w-full h-56 p-16 mt-48 mb-16 shadow">
 					<Icon color="action">search</Icon>
 					<Input
@@ -35,11 +35,11 @@ function Error404Page() {
 							'aria-label': 'Search'
 						}}
 					/>
-				</Paper>
+				</Paper> */}
 
-				<Link className="font-normal" to="/apps/dashboards/project">
-					Go back to dashboard
-				</Link>
+				{/* <Link className="font-normal" to="/apps/dashboards/project">
+					Go back to home
+				</Link> */}
 			</div>
 		</div>
 	);

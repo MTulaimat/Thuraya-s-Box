@@ -16,12 +16,12 @@ import { useSelector } from "react-redux";
 
 
 const routeConfigs = [
-	...appsConfigs,
-	...pagesConfigs,
-	...authRoleExamplesConfigs,
+	//...appsConfigs,
+	//...pagesConfigs,
+	//...authRoleExamplesConfigs,
+	//DocumentationConfig,
+	//UserInterfaceConfig,
 	...musabPagesConfig,
-	UserInterfaceConfig,
-	DocumentationConfig,
 	LogoutConfig,
 	LoginConfig,
 	RegisterConfig,
